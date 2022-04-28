@@ -46,9 +46,10 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () async {
                     try {
                       UserCredential credential =
-                      await _auth.signInWithEmailAndPassword(
-                          email: email, password: password);
-                      Navigator.pushNamed(context, '/home');
+                          await _auth.signInWithEmailAndPassword(
+                              email: email, password: password);
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, '/home', (_) => false);
                     } on FirebaseAuthException catch (e) {
                       showDialog(
                         context: context,

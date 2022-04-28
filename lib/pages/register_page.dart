@@ -93,7 +93,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             actions: [
                               ElevatedButton(
                                 onPressed: () {
-                                  Navigator.of(context).pop();
+                                  // Navigator.of(context).pop();
+                                  Navigator.pushNamed(context, '/login');
                                 },
                                 child: const Text('Okay'),
                               )
