@@ -29,6 +29,11 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             children: [
               Text('Hello ' + displayName),
+              const SizedBox(height: 16),
+              ElevatedButton(onPressed: (){
+                _auth.signOut();
+                Navigator.pop(context);
+              }, child: const Text('Logout'))
             ],
           ),
         ),

@@ -65,15 +65,15 @@ class _RegisterPageState extends State<RegisterPage> {
                     password = value.trim();
                   },
                 ),
-                TextFormField(
-                  decoration:
-                      const InputDecoration(hintText: "Repeat password"),
-                  obscureText: true,
-                  onChanged: (value) {
-                    repeatPassword = value.trim();
-                  },
-                ),
-                Text(email),
+                if (false)
+                  TextFormField(
+                    decoration:
+                        const InputDecoration(hintText: "Repeat password"),
+                    obscureText: true,
+                    onChanged: (value) {
+                      repeatPassword = value.trim();
+                    },
+                  ),
                 const SizedBox(
                   height: 16,
                 ),
@@ -83,11 +83,23 @@ class _RegisterPageState extends State<RegisterPage> {
                         UserCredential credential =
                             await _auth.createUserWithEmailAndPassword(
                                 email: email, password: password);
-                        Navigator.pushNamed(context, '/home');
-
                         await credential.user
                             ?.updateDisplayName(firstName + ' ' + lastName);
-
+                        Navigator.of(context).pop();
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Registration success'),
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Okay'),
+                              )
+                            ],
+                          ),
+                        );
                       } on FirebaseAuthException catch (e) {
                         showDialog(
                           context: context,

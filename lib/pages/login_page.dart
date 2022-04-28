@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -9,6 +10,10 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   @override
+  String email = '';
+  String password = '';
+  final _auth = FirebaseAuth.instance;
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -22,18 +27,47 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               TextFormField(
-                decoration: const InputDecoration(hintText: "Username"),
+                decoration: const InputDecoration(hintText: "Email"),
+                onChanged: (value) {
+                  email = value.trim();
+                },
               ),
               TextFormField(
                 decoration: const InputDecoration(hintText: "Password"),
                 obscureText: true,
+                onChanged: (value) {
+                  password = value.trim();
+                },
               ),
               const SizedBox(
                 height: 16,
               ),
-              ElevatedButton(onPressed: () {
-                Navigator.pushNamed(context, '/home');
-              }, child: const Text("Submit")),
+              ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      UserCredential credential =
+                      await _auth.signInWithEmailAndPassword(
+                          email: email, password: password);
+                      Navigator.pushNamed(context, '/home');
+                    } on FirebaseAuthException catch (e) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Login failed'),
+                          content: Text('${e.message}'),
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Okay'),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text("Submit")),
             ],
           ),
         ),
