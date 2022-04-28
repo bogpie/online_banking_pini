@@ -31,7 +31,9 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(
                 height: 16,
               ),
-              ElevatedButton(onPressed: () {}, child: const Text("Submit")),
+              ElevatedButton(onPressed: () {
+                Navigator.pushNamed(context, '/home');
+              }, child: const Text("Submit")),
             ],
           ),
         ),
