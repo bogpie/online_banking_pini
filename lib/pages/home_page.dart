@@ -18,13 +18,15 @@ class _LoginPageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
-
           children: [
             ElevatedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/register');
               },
               child: const Text('Register'),
+            ),
+            const SizedBox(
+              height: 16,
             ),
             ElevatedButton(
               onPressed: () {

@@ -14,10 +14,26 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         title: const Text('Login page'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextFormField(
+                decoration: const InputDecoration(hintText: "Username"),
+              ),
+              TextFormField(
+                decoration: const InputDecoration(hintText: "Password"),
+                obscureText: true,
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              ElevatedButton(onPressed: () {}, child: const Text("Submit")),
+            ],
+          ),
         ),
       ),
     );
