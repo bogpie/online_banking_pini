@@ -33,6 +33,7 @@ class _HomePageState extends State<HomePage> {
               ElevatedButton(onPressed: (){
                 _auth.signOut();
                 Navigator.pop(context);
+                Navigator.pushNamed(context, '/');
               }, child: const Text('Logout'))
             ],
           ),
