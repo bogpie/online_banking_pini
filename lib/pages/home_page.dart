@@ -16,9 +16,15 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     String displayName = '';
-    setState(() {
-      displayName = _auth.currentUser?.displayName ?? '';
-    });
+    User? user = _auth.currentUser;
+    setState(
+      () {
+        displayName = .displayName ?? '';
+      },
+    );
+
+    DatabaseReference userRef =
+    FirebaseDatabase.instance.ref('users/$/starCount');
 
     return DefaultTabController(
       length: 4,
