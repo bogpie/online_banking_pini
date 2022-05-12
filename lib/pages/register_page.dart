@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -68,7 +69,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 if (false)
                   TextFormField(
                     decoration:
-                        const InputDecoration(hintText: "Repeat password"),
+                    const InputDecoration(hintText: "Repeat password"),
                     obscureText: true,
                     onChanged: (value) {
                       repeatPassword = value.trim();
@@ -81,41 +82,63 @@ class _RegisterPageState extends State<RegisterPage> {
                     onPressed: () async {
                       try {
                         UserCredential credential =
-                            await _auth.createUserWithEmailAndPassword(
-                                email: email, password: password);
-                        await credential.user
-                            ?.updateDisplayName(firstName + ' ' + lastName);
+                        await _auth.createUserWithEmailAndPassword(
+                            email: email, password: password);
+
+                        User? user = credential.user;
+                        if (user == null) {
+                          throw Exception("Null user");
+                        }
+                        await user.updateDisplayName(firstName + ' ' + lastName);
+
+                        DatabaseReference ref = FirebaseDatabase.instance
+                            .ref("users/${credential.user!.uid}");
+
+                        await ref.set(
+                          {
+                            "firstName": firstName,
+                            "lastName": lastName,
+                            "username": user.displayName?.replaceAll(" ", "_"),
+                            "currencies": {
+                              "EUR": 1000,
+                              "RON": 2000,
+                              "USD": 3000
+                            }
+                          },
+                        );
                         Navigator.of(context).pop();
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Registration success'),
-                            actions: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  // Navigator.of(context).pop();
-                                  Navigator.pushNamed(context, '/login');
-                                },
-                                child: const Text('Okay'),
-                              )
-                            ],
-                          ),
+                          builder: (context) =>
+                              AlertDialog(
+                                title: const Text('WRegistration success'),
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      // Navigator.of(context).pop();
+                                      Navigator.pushNamed(context, '/login');
+                                    },
+                                    child: const Text('Okay'),
+                                  )
+                                ],
+                              ),
                         );
                       } on FirebaseAuthException catch (e) {
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Registration failed'),
-                            content: Text('${e.message}'),
-                            actions: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text('Okay'),
-                              )
-                            ],
-                          ),
+                          builder: (context) =>
+                              AlertDialog(
+                                title: const Text('Registration failed'),
+                                content: Text('${e.message}'),
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Okay'),
+                                  )
+                                ],
+                              ),
                         );
                       }
                     },
