@@ -5,22 +5,14 @@ import 'package:online_banking_pini/pages/login_page.dart';
 import 'package:online_banking_pini/pages/register_page.dart';
 import 'package:online_banking_pini/pages/start_page.dart';
 
+import 'firebase_options.dart';
+
 void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
-
-    const FirebaseOptions options = FirebaseOptions(
-        apiKey: "AIzaSyAJvntlBXgh_BMqJp1Rmd4EzZ00kUGWlNs",
-        authDomain: "onlinebankingpini.firebaseapp.com",
-        projectId: "onlinebankingpini",
-        storageBucket: "onlinebankingpini.appspot.com",
-        messagingSenderId: "722734900618",
-        appId: "1:722734900618:web:c500e37c5ab4fea11c1473",
-        measurementId: "G-VVXF8L21ZQ");
-
-    // await Firebase.initializeApp(
-    //     options: options);
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   } catch (e) {
     print(e.toString());
   }
