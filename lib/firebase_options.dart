@@ -42,6 +42,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '722734900618',
     projectId: 'onlinebankingpini',
     authDomain: 'onlinebankingpini.firebaseapp.com',
+    databaseURL: 'https://onlinebankingpini-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'onlinebankingpini.appspot.com',
     measurementId: 'G-VVXF8L21ZQ',
   );
@@ -51,6 +52,7 @@ class DefaultFirebaseOptions {
     appId: '1:722734900618:android:63d218f602da51971c1473',
     messagingSenderId: '722734900618',
     projectId: 'onlinebankingpini',
+    databaseURL: 'https://onlinebankingpini-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'onlinebankingpini.appspot.com',
   );
 
@@ -59,6 +61,7 @@ class DefaultFirebaseOptions {
     appId: '1:722734900618:ios:d9395213bbb6a7111c1473',
     messagingSenderId: '722734900618',
     projectId: 'onlinebankingpini',
+    databaseURL: 'https://onlinebankingpini-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'onlinebankingpini.appspot.com',
     iosClientId: '722734900618-sqchhj23qkcmj8ghn613cumtpp67mge7.apps.googleusercontent.com',
     iosBundleId: 'com.pini.onlineBankingPini',

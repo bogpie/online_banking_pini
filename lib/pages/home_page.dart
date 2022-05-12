@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -50,13 +51,25 @@ class _HomePageState extends State<HomePage> {
                           },
                           child: const Text('Logout')),
                       ElevatedButton(
-                          onPressed: () {
-                            User? user = FirebaseAuth.instance.currentUser;
-                            if (user == null) {
-                              return;
-                            }
-                          },
-                          child: const Text('test'))
+                        onPressed: () async {
+                          User? user = FirebaseAuth.instance.currentUser;
+                          if (user == null) {
+                            return;
+                          }
+                          DatabaseReference ref =
+                              FirebaseDatabase.instance.ref("users/123");
+
+                          await ref.set(
+                            {
+                              "firstName": "John",
+                              "lastName": "Smith",
+                              "username": "JohnSmith",
+                              "iban": "iban",
+                            },
+                          );
+                        },
+                        child: const Text('test'),
+                      )
                     ],
                   ),
                 ),
