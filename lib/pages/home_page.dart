@@ -23,9 +23,6 @@ class _HomePageState extends State<HomePage> {
       },
     );
 
-    DatabaseReference userRef =
-    FirebaseDatabase.instance.ref('users/$/starCount');
-
     return DefaultTabController(
       length: 4,
       child: Scaffold(
