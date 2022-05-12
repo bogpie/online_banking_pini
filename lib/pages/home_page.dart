@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -56,15 +55,6 @@ class _HomePageState extends State<HomePage> {
                             if (user == null) {
                               return;
                             }
-                            DocumentReference<Map<String, dynamic>> userData =
-                                FirebaseFirestore.instance
-                                    .collection('Users')
-                                    .doc(user.uid);
-
-                            final data1 = <String, dynamic>{
-                              "phone": "0000000000",
-                            };
-                            userData.set(data1);
                           },
                           child: const Text('test'))
                     ],
