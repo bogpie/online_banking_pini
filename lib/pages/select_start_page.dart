@@ -7,10 +7,10 @@ class SelectStartPage extends StatefulWidget {
   const SelectStartPage({Key? key}) : super(key: key);
 
   @override
-  _WrapperState createState() => _WrapperState();
+  _SelectStartPageState createState() => _SelectStartPageState();
 }
 
-class _WrapperState extends State<SelectStartPage> {
+class _SelectStartPageState extends State<SelectStartPage> {
   User? user;
 
   @override
@@ -22,9 +22,11 @@ class _WrapperState extends State<SelectStartPage> {
   }
 
   updateUserState(event) {
-    setState(() {
-      user = event;
-    });
+    setState(
+      () {
+        user = event;
+      },
+    );
   }
 
   @override
