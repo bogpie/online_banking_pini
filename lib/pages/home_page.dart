@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -10,16 +12,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  Map map = {};
 
   @override
   Widget build(BuildContext context) {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
     String displayName = '';
-    User? user = _auth.currentUser;
     setState(
       () {
-        displayName = user?.displayName ?? '';
+        displayName = _auth.currentUser?.displayName ?? '';
       },
     );
 
@@ -39,43 +45,36 @@ class _HomePageState extends State<HomePage> {
           ),
           body: TabBarView(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Text('Hello ' + displayName),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                          onPressed: () {
-                            _auth.signOut();
-                            Navigator.pop(context);
-                            Navigator.pushNamed(context, '/');
-                          },
-                          child: const Text('Logout')),
-                      ElevatedButton(
-                        onPressed: () async {
-                          User? user = FirebaseAuth.instance.currentUser;
-                          if (user == null) {
-                            return;
-                          }
-                          DatabaseReference ref =
-                              FirebaseDatabase.instance.ref("users/123");
+              FutureBuilder(
+                future: getUserMap().then((result) => map = result),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text('Hello ' + displayName),
+                          const SizedBox(height: 16),
+                          Text('You have ${map['currencies']['RON']} RON'),
+                          Text('You have ${map['currencies']['EUR']} EUR'),
+                          Text('You have ${map['currencies']['USD']} USD'),
 
-                          await ref.set(
-                            {
-                              "firstName": "John",
-                              "lastName": "Smith",
-                              "username": "JohnSmith",
-                              "iban": "iban",
-                            },
-                          );
-                        },
-                        child: const Text('test'),
-                      )
-                    ],
-                  ),
-                ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                              onPressed: () {
+                                _auth.signOut();
+                                Navigator.pop(context);
+                                Navigator.pushNamed(context, '/');
+                              },
+                              child: const Text('Logout')),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
               const Icon(Icons.sync_alt),
               const Icon(Icons.euro),
@@ -83,5 +82,13 @@ class _HomePageState extends State<HomePage> {
             ],
           )),
     );
+  }
+
+  Future<Map> getUserMap() async {
+    final ref = FirebaseDatabase.instance.ref();
+    final DataSnapshot snapshot =
+        await ref.child('users/${_auth.currentUser?.uid}').get();
+    Map map = jsonDecode(jsonEncode(snapshot.value));
+    return map;
   }
 }
