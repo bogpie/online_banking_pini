@@ -44,7 +44,7 @@ class _AuthScreenState extends State<AuthScreen> {
         });
       }
     } on PlatformException catch (err) {
-      String message = 'An error occurred, pelase check your credentials!';
+      String message = 'An error occurred, please check your credentials!';
 
       if (err.message != null) {
         message = err.message!;
