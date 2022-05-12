@@ -19,7 +19,7 @@ class _HomePageState extends State<HomePage> {
     User? user = _auth.currentUser;
     setState(
       () {
-        displayName = .displayName ?? '';
+        displayName = user?.displayName ?? '';
       },
     );
 
