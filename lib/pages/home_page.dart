@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:online_banking_pini/pages/exchange_page.dart';
 
@@ -20,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  Map map = {};
+  Map data = {};
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +60,7 @@ class _HomePageState extends State<HomePage> {
         body: TabBarView(
           children: [
             FutureBuilder(
-              future: getUserMap().then((result) => map = result),
+              future: getUserMap().then((result) => data = result),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
@@ -73,15 +72,15 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Text(
                           'You have '
-                          '${map['currencies']['RON']} RON',
+                          '${data['currencies']['RON']} RON',
                           textScaleFactor: 2,
                         ),
                         Text(
-                          'You have ${map['currencies']['EUR']} EUR',
+                          'You have ${data['currencies']['EUR']} EUR',
                           textScaleFactor: 2,
                         ),
                         Text(
-                          'You have ${map['currencies']['USD']} USD',
+                          'You have ${data['currencies']['USD']} USD',
                           textScaleFactor: 2,
                         ),
                         const SizedBox(height: 16),
