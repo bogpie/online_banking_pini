@@ -1,5 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+
+import '../services/user_data.dart';
 
 class ExchangePage extends StatefulWidget {
   const ExchangePage({Key? key}) : super(key: key);
@@ -15,9 +18,7 @@ class Exchange {
 
 class _ExchangePageState extends State<ExchangePage> {
   String sellCurrency = "RON";
-  double sellValue = 0;
   String buyCurrency = "EUR";
-  double buyValue = 0;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Map<String, double> conversionMap = {
@@ -169,7 +170,7 @@ class _ExchangePageState extends State<ExchangePage> {
             height: 16,
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (sellCurrency == buyCurrency) {
                 showDialog<String>(
                   context: context,
@@ -188,9 +189,49 @@ class _ExchangePageState extends State<ExchangePage> {
                     ],
                   ),
                 );
-              }
-              else {
+              } else {
+                DatabaseReference ref = FirebaseDatabase.instance.ref(
+                  "users/${FirebaseAuth.instance.currentUser?.uid ?? 'null_'
+                      'uid'}",
+                );
 
+                Map data = {};
+                // getUserMap().then((result) => data = result);
+
+                data = await getUserMap();
+
+                double newSellValue = data['currencies'][sellCurrency] * 1.0;
+                newSellValue -= double.tryParse(sellController.text) ?? 0.0;
+
+                double newBuyValue = data['currencies'][buyCurrency] * 1.0;
+                newBuyValue += double.tryParse(buyController.text) ?? 0.0;
+
+                if (newSellValue < 0) {
+                  showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('Not enough funds'),
+                      content: const Text('Sell less'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, 'Cancel'),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, 'OK'),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                  return;
+                }
+                data["currencies"][sellCurrency] = newSellValue;
+                data["currencies"][buyCurrency] = newBuyValue;
+
+                await ref.update(
+                  {"currencies": data["currencies"]},
+                );
               }
             },
             child: const Text('Exchange'),

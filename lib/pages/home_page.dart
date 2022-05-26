@@ -1,9 +1,8 @@
-import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:online_banking_pini/pages/exchange_page.dart';
+
+import '../services/user_data.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -18,7 +17,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   Map data = {};
 
   @override
@@ -26,7 +24,7 @@ class _HomePageState extends State<HomePage> {
     String displayName = '';
     setState(
       () {
-        displayName = _auth.currentUser?.displayName ?? '';
+        displayName = FirebaseAuth.instance.currentUser?.displayName ?? '';
       },
     );
 
@@ -83,8 +81,12 @@ class _HomePageState extends State<HomePage> {
                           'You have ${data['currencies']['USD']} USD',
                           textScaleFactor: 2,
                         ),
-                        const SizedBox(height: 16),
-
+                        const SizedBox(height: 32),
+                        IconButton(
+                            onPressed: () {
+                              setState(() {});
+                            },
+                            icon: const Icon(Icons.refresh))
                       ],
                     ),
                   ),
@@ -98,13 +100,5 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-  Future<Map> getUserMap() async {
-    final ref = FirebaseDatabase.instance.ref();
-    final DataSnapshot snapshot =
-        await ref.child('users/${_auth.currentUser?.uid}').get();
-    Map map = jsonDecode(jsonEncode(snapshot.value));
-    return map;
   }
 }
