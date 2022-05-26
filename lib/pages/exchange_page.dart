@@ -8,17 +8,20 @@ class ExchangePage extends StatefulWidget {
 }
 
 class _ExchangePageState extends State<ExchangePage> {
-  String sellCurrency = "RON";
+  String sellCurrency = "EUR";
   double sellValue = 0;
-  String buyCurrency = "RON";
+  String buyCurrency = "USD";
   double buyValue = 0;
-  Map<Map<String, String>, int> conversionMap = {
-    {"RON": "EUR"}: 1,
-    {"RON": "USD"}: 1,
-    {"EUR": "USD"}: 1,
-    {"EUR": "RON"}: 1,
-    {"USD": "RON"}: 1,
-    {"USD": "EUR"}: 1,
+  Map<Map<String, String>, double> conversionMap = {
+    {"RON": "EUR"}: 0.20,
+    {"RON": "USD"}: 0.22,
+    {"EUR": "USD"}: 1.07,
+    {"EUR": "RON"}: 4.94,
+    {"USD": "RON"}: 4.62,
+    {"USD": "EUR"}: 0.93,
+    {"RON": "RON"}: 1,
+    {"EUR": "EUR"}: 1,
+    {"USD": "USD"}: 1
   };
 
   @override
@@ -50,6 +53,8 @@ class _ExchangePageState extends State<ExchangePage> {
                         );
                       },
                       items: <String>['RON', 'EUR', 'USD']
+                          .where((element) => element != buyCurrency)
+                          .toList()
                           .map<DropdownMenuItem<String>>(
                         (String value) {
                           return DropdownMenuItem<String>(
