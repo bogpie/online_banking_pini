@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:online_banking_pini/pages/exchange_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -32,55 +34,70 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Home page'),
-            bottom: const TabBar(
-              tabs: [
-                Tab(icon: Icon(Icons.home)),
-                Tab(icon: Icon(Icons.sync_alt)),
-                Tab(icon: Icon(Icons.euro)),
-                Tab(icon: Icon(Icons.support_agent)),
-              ],
-            ),
-          ),
-          body: TabBarView(
+        appBar: AppBar(
+          title: Row(
             children: [
-              FutureBuilder(
-                future: getUserMap().then((result) => map = result),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(
-                      child: Column(
-                        children: [
-                          Text('Hello ' + displayName),
-                          const SizedBox(height: 16),
-                          Text('You have ${map['currencies']['RON']} RON'),
-                          Text('You have ${map['currencies']['EUR']} EUR'),
-                          Text('You have ${map['currencies']['USD']} USD'),
-
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                              onPressed: () {
-                                _auth.signOut();
-                                Navigator.pop(context);
-                                Navigator.pushNamed(context, '/');
-                              },
-                              child: const Text('Logout')),
-                        ],
-                      ),
-                    ),
-                  );
+              GestureDetector(
+                child: const CircleAvatar(child: Icon(Icons.person)),
+                onTap: () {
+                  Navigator.pushNamed(context, '/profile');
                 },
               ),
-              const Icon(Icons.sync_alt),
-              const Icon(Icons.euro),
-              const Icon(Icons.support_agent),
+              const SizedBox(
+                width: 16,
+              ),
+              Text(displayName.toUpperCase()),
             ],
-          )),
+          ),
+          bottom: const TabBar(
+            tabs: [
+              Tab(icon: Icon(Icons.home)),
+              Tab(icon: Icon(Icons.sync_alt)),
+              Tab(icon: Icon(Icons.euro)),
+              Tab(icon: Icon(Icons.support_agent)),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            FutureBuilder(
+              future: getUserMap().then((result) => map = result),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          'You have '
+                          '${map['currencies']['RON']} RON',
+                          textScaleFactor: 2,
+                        ),
+                        Text(
+                          'You have ${map['currencies']['EUR']} EUR',
+                          textScaleFactor: 2,
+                        ),
+                        Text(
+                          'You have ${map['currencies']['USD']} USD',
+                          textScaleFactor: 2,
+                        ),
+                        const SizedBox(height: 16),
+
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+            const Icon(Icons.sync_alt),
+            const ExchangePage(),
+            const Icon(Icons.support_agent),
+          ],
+        ),
+      ),
     );
   }
 
