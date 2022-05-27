@@ -198,7 +198,7 @@ class _ExchangePageState extends State<ExchangePage> {
                 Map data = {};
                 // getUserMap().then((result) => data = result);
 
-                data = await getUserMap();
+                data = await getUserMap(FirebaseAuth.instance.currentUser!.uid);
 
                 double newSellValue = data['currencies'][sellCurrency] * 1.0;
                 newSellValue -= double.tryParse(sellController.text) ?? 0.0;
@@ -211,7 +211,7 @@ class _ExchangePageState extends State<ExchangePage> {
                     context: context,
                     builder: (BuildContext context) => AlertDialog(
                       title: const Text('Not enough funds'),
-                      content: const Text('Sell less'),
+                      content: Text('Sell less $sellCurrency'),
                       actions: <Widget>[
                         TextButton(
                           onPressed: () => Navigator.pop(context, 'Cancel'),
@@ -231,6 +231,23 @@ class _ExchangePageState extends State<ExchangePage> {
 
                 await ref.update(
                   {"currencies": data["currencies"]},
+                );
+
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('Successfully exchanged'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'Cancel'),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'OK'),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
                 );
               }
             },

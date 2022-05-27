@@ -4,7 +4,9 @@ import 'package:firebase_database/firebase_database.dart';
 
 // RO00 CODE
 // EU00 CODE
-Future<String> ibanToUid(String iban) async {
+//  .substring(4, 7)
+
+Future<String> ibanCodeToUid(String ibanCode) async {
   final ref = FirebaseDatabase.instance.ref();
 
   final DataSnapshot usersSnapshot = await ref.child('users').get();
@@ -12,10 +14,8 @@ Future<String> ibanToUid(String iban) async {
 
   MapEntry userEntry = usersMap.entries.firstWhere(
     (element) =>
-        element.key
-            .toString() //
-            .substring(1, 4) ==
-        iban.substring(4, 7),
+        element.key.toString().substring(0, 4).toUpperCase() ==
+        ibanCode.toUpperCase(),
   );
 
   return userEntry.key;
