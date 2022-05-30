@@ -187,29 +187,57 @@ class _TransferPageState extends State<TransferPage> {
                   '0123 4567 '
                       '8901 2345';
 
-              senderRef.update(
-                {
-                  "transfers": {
-                    "type": "sent",
-                    "iban": receiverIban,
-                    "amount": transferred,
-                    "currency": currency
-                  }
-                },
-              );
+              /* Extract transfer list from senders */
+              List<dynamic>? senderTransfers = senderData["transfers"];
 
-              receiversRef.update(
-                {
-                  "transfers": {
+              if (senderTransfers != null) {
+                senderTransfers.add(
+                  {
+                      "type": "sent",
+                      "iban": receiverIban,
+                      "amount": transferred,
+                      "currency": currency
+                  }
+                );
+              } else {
+                 senderTransfers = [
+                   {
+                     "type": "sent",
+                     "iban": receiverIban,
+                     "amount": transferred,
+                     "currency": currency
+                   }
+                 ];
+              }
+
+              /* Extract receiver transfer list */
+              List<dynamic>? receiverTransfers = receiverData["transfers"];
+
+              if (receiverTransfers != null) {
+                receiverTransfers.add(
+                    {
+                      "type": "received",
+                      "iban": senderIban,
+                      "amount": transferred,
+                      "currency": currency
+                    }
+                );
+              } else {
+                receiverTransfers = [
+                  {
                     "type": "received",
                     "iban": senderIban,
                     "amount": transferred,
                     "currency": currency
                   }
-                },
-              );
-              List<dynamic>? transfers = senderData["transfers"];
+                ];
+              }
 
+              /* Update the transfers inside database */
+              senderRef.update({"transfers": senderTransfers});
+              receiversRef.update({"transfers": receiverTransfers});
+
+              /* Update the new currencies inside database */
               senderRef.update({"currencies": senderData["currencies"]});
               receiversRef.update({"currencies": receiverData["currencies"]});
 
