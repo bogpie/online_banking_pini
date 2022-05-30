@@ -38,210 +38,215 @@ class _ExchangePageState extends State<ExchangePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
+    return Center(
+      child: SizedBox(
+        width: 500,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
 
-        children: [
-          const SizedBox(
-            height: 16,
-          ),
-          Row(
             children: [
-              Expanded(
-                flex: 2,
-                child: DropdownButtonHideUnderline(
-                  child: Card(
-                    elevation: 5,
-                    child: DropdownButton<String>(
-                      value: sellCurrency,
-                      icon: const Icon(Icons.arrow_downward),
-                      onChanged: (String? newValue) {
-                        setState(
-                          () {
-                            sellCurrency = newValue!;
-                            String sellBuy = sellCurrency + '-' + buyCurrency;
-                            double modifier = conversionMap[sellBuy] ?? 1.0;
-                            buyController.text =
-                                ((double.tryParse(sellController.text) ?? 0) *
-                                        modifier)
-                                    .toStringAsFixed(2);
-                          },
-                        );
-                      },
-                      items: <String>['RON', 'EUR', 'USD']
-                          .map<DropdownMenuItem<String>>(
-                        (String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text("Selling $value"),
-                            ),
-                          );
-                        },
-                      ).toList(),
-                    ),
-                  ),
-                ),
-              ),
               const SizedBox(
-                width: 8,
+                height: 16,
               ),
-              Expanded(
-                flex: 3,
-                child: TextField(
-                  keyboardType: TextInputType.number,
-                  controller: sellController,
-                  onChanged: (String value) {
-                    String sellBuy = sellCurrency + '-' + buyCurrency;
-                    double modifier = conversionMap[sellBuy] ?? 1.0;
-                    buyController.text =
-                        ((double.tryParse(value) ?? 0) * modifier)
-                            .toStringAsFixed(2);
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: DropdownButtonHideUnderline(
-                  child: Card(
-                    elevation: 5,
-                    child: DropdownButton<String>(
-                      value: buyCurrency,
-                      icon: const Icon(Icons.arrow_downward),
-                      onChanged: (String? newValue) {
-                        setState(
-                          () {
-                            buyCurrency = newValue!;
-                            String buySell = buyCurrency + '-' + sellCurrency;
-                            double modifier = conversionMap[buySell] ?? 1.0;
-                            sellController.text =
-                                ((double.tryParse(buyController.text) ?? 0) *
-                                        modifier)
-                                    .toStringAsFixed(2);
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: DropdownButtonHideUnderline(
+                      child: Card(
+                        elevation: 5,
+                        child: DropdownButton<String>(
+                          value: sellCurrency,
+                          icon: const Icon(Icons.arrow_downward),
+                          onChanged: (String? newValue) {
+                            setState(
+                              () {
+                                sellCurrency = newValue!;
+                                String sellBuy = sellCurrency + '-' + buyCurrency;
+                                double modifier = conversionMap[sellBuy] ?? 1.0;
+                                buyController.text =
+                                    ((double.tryParse(sellController.text) ?? 0) *
+                                            modifier)
+                                        .toStringAsFixed(2);
+                              },
+                            );
                           },
-                        );
-                      },
-                      items: <String>['RON', 'EUR', 'USD']
-                          .map<DropdownMenuItem<String>>(
-                        (String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text("Buying $value"),
-                            ),
-                          );
-                        },
-                      ).toList(),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                width: 8,
-              ),
-              Expanded(
-                flex: 3,
-                child: TextField(
-                  keyboardType: TextInputType.number,
-                  controller: buyController,
-                  onChanged: (value) {
-                    String buySell = buyCurrency + '-' + sellCurrency;
-                    double modifier = conversionMap[buySell] ?? 1.0;
-                    sellController.text =
-                        ((double.tryParse(value) ?? 0) * modifier)
-                            .toStringAsFixed(2);
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (sellCurrency == buyCurrency) {
-                showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                    title: const Text('Currencies are the same'),
-                    content: const Text('Choose a different currency'),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, 'OK'),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                );
-              } else {
-                DatabaseReference ref = FirebaseDatabase.instance.ref(
-                  "users/${FirebaseAuth.instance.currentUser?.uid ?? 'null_'
-                      'uid'}",
-                );
-
-                Map data = {};
-                // getUserMap().then((result) => data = result);
-
-                data = await getUserMap(FirebaseAuth.instance.currentUser!.uid);
-
-                double newSellValue = data['currencies'][sellCurrency] * 1.0;
-                newSellValue -= double.tryParse(sellController.text) ?? 0.0;
-
-                double newBuyValue = data['currencies'][buyCurrency] * 1.0;
-                newBuyValue += double.tryParse(buyController.text) ?? 0.0;
-
-
-                if (newSellValue < 0) {
-                  showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                      title: const Text('Not enough funds'),
-                      content: Text('Sell less $sellCurrency'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, 'OK'),
-                          child: const Text('OK'),
+                          items: <String>['RON', 'EUR', 'USD']
+                              .map<DropdownMenuItem<String>>(
+                            (String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text("Selling $value"),
+                                ),
+                              );
+                            },
+                          ).toList(),
                         ),
-                      ],
-                    ),
-                  );
-                  return;
-                }
-                data["currencies"][sellCurrency] = newSellValue;
-                data["currencies"][buyCurrency] = newBuyValue;
-
-                await ref.update(
-                  {"currencies": data["currencies"]},
-                );
-
-                showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                    title: const Text('Successfully exchanged'),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, 'OK'),
-                        child: const Text('OK'),
                       ),
-                    ],
+                    ),
                   ),
-                );
-              }
-            },
-            child: const Text('Exchange'),
-          )
-        ],
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: TextField(
+                      keyboardType: TextInputType.number,
+                      controller: sellController,
+                      onChanged: (String value) {
+                        String sellBuy = sellCurrency + '-' + buyCurrency;
+                        double modifier = conversionMap[sellBuy] ?? 1.0;
+                        buyController.text =
+                            ((double.tryParse(value) ?? 0) * modifier)
+                                .toStringAsFixed(2);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: DropdownButtonHideUnderline(
+                      child: Card(
+                        elevation: 5,
+                        child: DropdownButton<String>(
+                          value: buyCurrency,
+                          icon: const Icon(Icons.arrow_downward),
+                          onChanged: (String? newValue) {
+                            setState(
+                              () {
+                                buyCurrency = newValue!;
+                                String buySell = buyCurrency + '-' + sellCurrency;
+                                double modifier = conversionMap[buySell] ?? 1.0;
+                                sellController.text =
+                                    ((double.tryParse(buyController.text) ?? 0) *
+                                            modifier)
+                                        .toStringAsFixed(2);
+                              },
+                            );
+                          },
+                          items: <String>['RON', 'EUR', 'USD']
+                              .map<DropdownMenuItem<String>>(
+                            (String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text("Buying $value"),
+                                ),
+                              );
+                            },
+                          ).toList(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: TextField(
+                      keyboardType: TextInputType.number,
+                      controller: buyController,
+                      onChanged: (value) {
+                        String buySell = buyCurrency + '-' + sellCurrency;
+                        double modifier = conversionMap[buySell] ?? 1.0;
+                        sellController.text =
+                            ((double.tryParse(value) ?? 0) * modifier)
+                                .toStringAsFixed(2);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (sellCurrency == buyCurrency) {
+                    showDialog<String>(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(
+                        title: const Text('Currencies are the same'),
+                        content: const Text('Choose a different currency'),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, 'OK'),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    DatabaseReference ref = FirebaseDatabase.instance.ref(
+                      "users/${FirebaseAuth.instance.currentUser?.uid ?? 'null_'
+                          'uid'}",
+                    );
+
+                    Map data = {};
+                    // getUserMap().then((result) => data = result);
+
+                    data = await getUserMap(FirebaseAuth.instance.currentUser!.uid);
+
+                    double newSellValue = data['currencies'][sellCurrency] * 1.0;
+                    newSellValue -= double.tryParse(sellController.text) ?? 0.0;
+
+                    double newBuyValue = data['currencies'][buyCurrency] * 1.0;
+                    newBuyValue += double.tryParse(buyController.text) ?? 0.0;
+
+
+                    if (newSellValue < 0) {
+                      showDialog<String>(
+                        context: context,
+                        builder: (BuildContext context) => AlertDialog(
+                          title: const Text('Not enough funds'),
+                          content: Text('Sell less $sellCurrency'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, 'OK'),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                      return;
+                    }
+                    data["currencies"][sellCurrency] = newSellValue;
+                    data["currencies"][buyCurrency] = newBuyValue;
+
+                    await ref.update(
+                      {"currencies": data["currencies"]},
+                    );
+
+                    showDialog<String>(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(
+                        title: const Text('Successfully exchanged'),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, 'OK'),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Exchange'),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }

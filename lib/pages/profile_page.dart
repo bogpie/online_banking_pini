@@ -20,74 +20,96 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: const Text("Profile"),
       ),
-      body: Center(
-        child: Column(
-          children: [
-            ElevatedButton(
-                onPressed: () {
-                  _auth.signOut();
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/');
-                },
-                child: const Text('Logout')),
-            FutureBuilder(
-              future: getUserMap(FirebaseAuth.instance.currentUser!.uid)
-                  .then((result) => data = result),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData || snapshot.hasError) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                return Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Text(
-                          'First Name:  '
-                          '${data['firstName']} ',
-                          textScaleFactor: 2,
-                        ),
-                        Text(
-                          'Last Name:  '
-                          '${data['lastName']} ',
-                          textScaleFactor: 2,
-                        ),
-                        Text(
-                          'Phone Number:  '
-                          '${data['phoneNumber']} ',
-                          textScaleFactor: 2,
-                        ),
-                        Text(
-                          'Personal Identification Number:  '
-                          '${data['PIN']} ',
-                          textScaleFactor: 2,
-                        ),
-                        Text(
-                          'You have '
-                          '${data['currencies']['RON']} RON',
-                          textScaleFactor: 2,
-                        ),
-                        Text(
-                          'You have ${data['currencies']['EUR']} EUR',
-                          textScaleFactor: 2,
-                        ),
-                        Text(
-                          'You have ${data['currencies']['USD']} USD',
-                          textScaleFactor: 2,
-                        ),
-                        const SizedBox(height: 32),
-                        IconButton(
-                            onPressed: () {
-                              setState(() {});
-                            },
-                            icon: const Icon(Icons.refresh))
-                      ],
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: Column(
+            children: [
+              FutureBuilder(
+                future: getUserMap(FirebaseAuth.instance.currentUser!.uid)
+                    .then((result) => data = result),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData || snapshot.hasError) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            'First Name:  '
+                            '${data['firstName']} ',
+                            textScaleFactor: 1.5,
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Text(
+                            'Last Name:  '
+                            '${data['lastName']} ',
+                            textScaleFactor: 1.5,
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Text(
+                            'Phone Number:  '
+                            '${data['phoneNumber']} ',
+                            textScaleFactor: 1.5,
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Text(
+                            'PIN:  '
+                            '${data['PIN']} ',
+                            textScaleFactor: 1.5,
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Text(
+                            'You have '
+                            '${data['currencies']['RON']} RON',
+                            textScaleFactor: 1.5,
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Text(
+                            'You have ${data['currencies']['EUR']} EUR',
+                            textScaleFactor: 1.5,
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Text(
+                            'You have ${data['currencies']['USD']} USD',
+                            textScaleFactor: 1.5,
+                          ),
+                          const SizedBox(height: 32),
+                          IconButton(
+                              onPressed: () {
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.refresh))
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            )
-          ],
+                  );
+                },
+              ),
+              const Spacer(),
+              ElevatedButton(
+                  onPressed: () {
+                    _auth.signOut();
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/');
+                  },
+                  child: const Text('Logout')),
+            ],
+          ),
         ),
       ),
     );
