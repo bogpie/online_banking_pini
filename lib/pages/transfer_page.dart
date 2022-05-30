@@ -22,7 +22,7 @@ class _TransferPageState extends State<TransferPage> {
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.center,
-      child: Container(
+      child: SizedBox(
         width: 500,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
