@@ -11,6 +11,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   Map data = {};
+  final _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +22,11 @@ class _ProfilePageState extends State<ProfilePage> {
       body: Center(
         child: Column(
           children: [
-            ElevatedButton(
-                onPressed: () {
-
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/');
-                },
-                child: const Text('Logout')),
+            ElevatedButton(onPressed: (){
+              _auth.signOut();
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/');
+            }, child: const Text('Logout')),
             FutureBuilder(
               future: getUserMap(FirebaseAuth.instance.currentUser!.uid)
                   .then((result) => data = result),
