@@ -51,6 +51,16 @@ class _ProfilePageState extends State<ProfilePage> {
                           textScaleFactor: 2,
                         ),
                         Text(
+                          'Phone Number:  '
+                              '${data['phoneNumber']} ',
+                          textScaleFactor: 2,
+                        ),
+                        Text(
+                          'Personal Identification Number:  '
+                              '${data['PIN']} ',
+                          textScaleFactor: 2,
+                        ),
+                        Text(
                           'You have '
                               '${data['currencies']['RON']} RON',
                           textScaleFactor: 2,
