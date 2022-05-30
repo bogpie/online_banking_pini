@@ -12,6 +12,7 @@ Future<String> ibanCodeToUid(String ibanCode) async {
   final DataSnapshot usersSnapshot = await ref.child('users').get();
   Map usersMap = jsonDecode(jsonEncode(usersSnapshot.value));
 
+
   MapEntry userEntry = usersMap.entries.firstWhere(
     (element) =>
         element.key.toString().substring(0, 4).toUpperCase() ==

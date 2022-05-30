@@ -179,10 +179,6 @@ class _ExchangePageState extends State<ExchangePage> {
                     content: const Text('Choose a different currency'),
                     actions: <Widget>[
                       TextButton(
-                        onPressed: () => Navigator.pop(context, 'Cancel'),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
                         onPressed: () => Navigator.pop(context, 'OK'),
                         child: const Text('OK'),
                       ),
@@ -206,6 +202,7 @@ class _ExchangePageState extends State<ExchangePage> {
                 double newBuyValue = data['currencies'][buyCurrency] * 1.0;
                 newBuyValue += double.tryParse(buyController.text) ?? 0.0;
 
+
                 if (newSellValue < 0) {
                   showDialog<String>(
                     context: context,
@@ -213,10 +210,6 @@ class _ExchangePageState extends State<ExchangePage> {
                       title: const Text('Not enough funds'),
                       content: Text('Sell less $sellCurrency'),
                       actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, 'Cancel'),
-                          child: const Text('Cancel'),
-                        ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, 'OK'),
                           child: const Text('OK'),
@@ -238,10 +231,6 @@ class _ExchangePageState extends State<ExchangePage> {
                   builder: (BuildContext context) => AlertDialog(
                     title: const Text('Successfully exchanged'),
                     actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, 'Cancel'),
-                        child: const Text('Cancel'),
-                      ),
                       TextButton(
                         onPressed: () => Navigator.pop(context, 'OK'),
                         child: const Text('OK'),

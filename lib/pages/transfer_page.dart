@@ -16,7 +16,7 @@ class TransferPage extends StatefulWidget {
 class _TransferPageState extends State<TransferPage> {
   String currency = 'RON';
   double transferred = 0.0;
-  String ibanCode = '';
+  String receiverIbanCode = '';
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,7 @@ class _TransferPageState extends State<TransferPage> {
                     hintStyle: TextStyle(fontStyle: FontStyle.italic),
                   ),
                   onChanged: (String value) {
-                    ibanCode = value;
+                    receiverIbanCode = value;
                   },
                   inputFormatters: [
                     LengthLimitingTextInputFormatter(4),
@@ -117,10 +117,11 @@ class _TransferPageState extends State<TransferPage> {
             onPressed: () async {
               Map senderData =
                   await getUserMap(FirebaseAuth.instance.currentUser!.uid);
+
               double newSenderBalance =
                   senderData['currencies'][currency] * 1.0 - transferred;
 
-              if (ibanCode.length != 4) {
+              if (receiverIbanCode.length != 4) {
                 showDialog<String>(
                   context: context,
                   builder: (BuildContext context) => AlertDialog(
@@ -129,10 +130,6 @@ class _TransferPageState extends State<TransferPage> {
                         const Text('Use the unique 4 character user identifier'
                             ' for receiver'),
                     actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, 'Cancel'),
-                        child: const Text('Cancel'),
-                      ),
                       TextButton(
                         onPressed: () => Navigator.pop(context, 'OK'),
                         child: const Text('OK'),
@@ -150,10 +147,6 @@ class _TransferPageState extends State<TransferPage> {
                     content: Text('Transfer less $currency'),
                     actions: <Widget>[
                       TextButton(
-                        onPressed: () => Navigator.pop(context, 'Cancel'),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
                         onPressed: () => Navigator.pop(context, 'OK'),
                         child: const Text('OK'),
                       ),
@@ -163,7 +156,7 @@ class _TransferPageState extends State<TransferPage> {
                 return;
               }
 
-              String receiverUid = await ibanCodeToUid(ibanCode);
+              String receiverUid = await ibanCodeToUid(receiverIbanCode);
               Map receiverData = await getUserMap(receiverUid);
 
               senderData["currencies"][currency] = newSenderBalance;
@@ -172,15 +165,66 @@ class _TransferPageState extends State<TransferPage> {
                   receiverData['currencies'][currency] * 1.0 + transferred;
               receiverData['currencies'][currency] = newReceiverBalance;
 
-              DatabaseReference sendersRef = FirebaseDatabase.instance.ref(
+              DatabaseReference senderRef = FirebaseDatabase.instance.ref(
                 "users/${FirebaseAuth.instance.currentUser?.uid ?? 'null_'
                     'uid'}",
               );
               DatabaseReference receiversRef =
                   FirebaseDatabase.instance.ref("users/$receiverUid");
 
-              sendersRef.update({"currencies": senderData["currencies"]});
+              String senderIbanCode =
+                  FirebaseAuth.instance.currentUser?.uid.substring(0, 4) ?? '';
+
+              String senderIban = currency.substring(0, 2) +
+                  "00 " +
+                  senderIbanCode +
+                  '0123 4567 '
+                      '8901 2345';
+
+              String receiverIban = currency.substring(0, 2) +
+                  "00 " +
+                  receiverIbanCode +
+                  '0123 4567 '
+                      '8901 2345';
+
+              senderRef.update(
+                {
+                  "transfers": {
+                    "type": "sent",
+                    "iban": receiverIban,
+                    "amount": transferred,
+                    "currency": currency
+                  }
+                },
+              );
+
+              receiversRef.update(
+                {
+                  "transfers": {
+                    "type": "received",
+                    "iban": senderIban,
+                    "amount": transferred,
+                    "currency": currency
+                  }
+                },
+              );
+              List<dynamic>? transfers = senderData["transfers"];
+
+              senderRef.update({"currencies": senderData["currencies"]});
               receiversRef.update({"currencies": receiverData["currencies"]});
+
+              showDialog<String>(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('Successfully transferred'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'OK'),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
             },
             child: const Text('Transfer'),
           ),
