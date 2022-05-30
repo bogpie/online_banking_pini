@@ -260,7 +260,10 @@ class _TransferPageState extends State<TransferPage> {
             height: 32,
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/history');
+            },
             child: const Text('History'),
           ),
         ],
