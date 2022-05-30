@@ -30,45 +30,84 @@ class _TransactionHistory extends State<TransactionHistory> {
               return ListView.builder(
                 itemCount: data['transfers']?.length ?? 0,
                 itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Card(
-                      elevation: 15,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-
-                            Expanded(
-                              child: ListTile(
-                                title: Text(data['username']),
-                                subtitle: Column(
-                                  children: [
-                                    Text(data['transfers'][index]['iban']),
-                                    Text(
-                                    data['transfers'][index]['currency'] +
-                                        ' ' +
-                                        data['transfers'][index]['amount'].toString(),
-                                    ),
-                                  ]
-                                )
+                  // Print out the items which will be received + 2 buttons
+                  if (data['type'] == "received") {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Card(
+                        elevation: 15,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ListTile(
+                                    title: Text(data['username']),
+                                    subtitle: Column(
+                                        children: [
+                                          Text(
+                                              data['transfers'][index]['iban']),
+                                          Text(
+                                            data['transfers'][index]['currency'] +
+                                                ' ' +
+                                                data['transfers'][index]['amount']
+                                                    .toString(),
+                                          ),
+                                        ]
+                                    )
+                                ),
                               ),
-                            ),
-                            IconButton(
-                                onPressed: () {
-                                  setState(() {});
-                                },
-                                icon: const Icon(Icons.check)),
-                            IconButton(
-                                onPressed: () {
-                                  setState(() {});
-                                },
-                                icon: const Icon(Icons.cancel)),
-                          ],
+                              IconButton(
+                                  onPressed: () async {
+                                    Map currentUserData =
+                                    await getUserMap(
+                                        FirebaseAuth.instance.currentUser!.uid);
+                                  },
+                                  icon: const Icon(Icons.check)),
+                              IconButton(
+                                  onPressed: () {
+                                    setState(() {});
+                                  },
+                                  icon: const Icon(Icons.cancel)),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
+                    );
+                  }
+                  // Print out the items that are sent without buttons
+                  else {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Card(
+                        elevation: 15,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ListTile(
+                                    title: Text(data['username']),
+                                    subtitle: Column(
+                                        children: [
+                                          Text(
+                                            data['transfers'][index]['iban']),
+                                          Text(
+                                            data['transfers'][index]['currency'] +
+                                                ' ' +
+                                            data['transfers'][index]['amount']
+                                                .toString(),
+                                          ),
+                                        ]
+                                    )
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
                 },
               );
             },
