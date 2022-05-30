@@ -118,6 +118,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             "phoneNumber": phoneNumber,
                             "email": email,
                             "PIN": PIN,
+                            "transfers": [],
                             "currencies": {
                               "EUR": 1000,
                               "RON": 2000,
