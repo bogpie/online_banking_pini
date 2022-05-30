@@ -1,4 +1,6 @@
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:online_banking_pini/pages/exchange_page.dart';
 import 'package:online_banking_pini/pages/transfer_page.dart';
@@ -49,10 +51,22 @@ class _HomePageState extends State<HomePage> {
           ),
           bottom: const TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.home)),
-              Tab(icon: Icon(Icons.sync_alt)),
-              Tab(icon: Icon(Icons.euro)),
-              Tab(icon: Icon(Icons.support_agent)),
+              Tab(
+                icon: Icon(Icons.home),
+                text: kIsWeb ? 'Home' : null,
+              ),
+              Tab(
+                icon: Icon(Icons.sync_alt),
+                text: kIsWeb ? 'Transfer' : null,
+              ),
+              Tab(
+                icon: Icon(Icons.euro),
+                text: kIsWeb ? 'Exchange' : null,
+              ),
+              Tab(
+                icon: Icon(Icons.support_agent),
+                text: kIsWeb ? 'Support' : null,
+              ),
             ],
           ),
         ),
