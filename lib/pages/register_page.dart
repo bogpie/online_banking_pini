@@ -17,6 +17,8 @@ class _RegisterPageState extends State<RegisterPage> {
   String email = '';
   String password = '';
   String repeatPassword = '';
+  String PIN = '';
+  String phoneNumber = '';
   final _auth = FirebaseAuth.instance;
 
   @override
@@ -47,9 +49,15 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                 ),
                 TextFormField(
-                  decoration: const InputDecoration(hintText: "Username"),
+                  decoration: const InputDecoration(hintText: "Personal Identification Number"),
                   onChanged: (value) {
-                    userName = value.trim();
+                    PIN = value.trim();
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(hintText: "Phone Number"),
+                  onChanged: (value) {
+                    phoneNumber = value.trim();
                   },
                 ),
                 TextFormField(
@@ -57,6 +65,12 @@ class _RegisterPageState extends State<RegisterPage> {
                   decoration: const InputDecoration(hintText: "Email"),
                   onChanged: (value) {
                     email = value.trim();
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(hintText: "Username"),
+                  onChanged: (value) {
+                    userName = value.trim();
                   },
                 ),
                 TextFormField(
@@ -101,6 +115,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             "lastName": lastName,
                             // "username": user.displayName?.replaceAll(" ", "_"),
                             "username": userName,
+                            "phoneNumber": phoneNumber,
+                            "PIN": PIN,
                             "currencies": {
                               "EUR": 1000,
                               "RON": 2000,
