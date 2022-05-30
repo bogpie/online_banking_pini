@@ -18,7 +18,7 @@ class _TransactionHistory extends State<TransactionHistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Start page'),
+        title: const Text('Your transaction history'),
       ),
       body: Center(
         child: SizedBox(
@@ -41,24 +41,29 @@ class _TransactionHistory extends State<TransactionHistory> {
 
                             Expanded(
                               child: ListTile(
-                                title: Text(data['transfers'][index]['iban']),
-                                subtitle: Text(
-                                  data['transfers'][index]['currency'] +
-                                      ' ' +
-                                      data['transfers'][index]['amount'].toString(),
-                                ),
+                                title: Text(data['username']),
+                                subtitle: Column(
+                                  children: [
+                                    Text(data['transfers'][index]['iban']),
+                                    Text(
+                                    data['transfers'][index]['currency'] +
+                                        ' ' +
+                                        data['transfers'][index]['amount'].toString(),
+                                    ),
+                                  ]
+                                )
                               ),
                             ),
                             IconButton(
                                 onPressed: () {
                                   setState(() {});
                                 },
+                                icon: const Icon(Icons.check)),
+                            IconButton(
+                                onPressed: () {
+                                  setState(() {});
+                                },
                                 icon: const Icon(Icons.cancel)),
-                            // IconButton(
-                            //     onPressed: () {
-                            //       setState(() {});
-                            //     },
-                            //     icon: const Icon(Icons.check)),
                           ],
                         ),
                       ),
