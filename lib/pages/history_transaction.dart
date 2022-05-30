@@ -35,16 +35,27 @@ class _TransactionHistory extends State<TransactionHistory> {
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                       children: [
+
                         Expanded(
                           child: ListTile(
                             title: Text(data['transfers'][index]['iban']),
                             subtitle: Text(
                               data['transfers'][index]['currency'] +
+                                  ' ' +
                                   data['transfers'][index]['amount'].toString(),
                             ),
                           ),
                         ),
-                        ElevatedButton(onPressed: () {}, child: const Text('Cancel'))
+                        IconButton(
+                            onPressed: () {
+                              setState(() {});
+                            },
+                            icon: const Icon(Icons.cancel)),
+                        // IconButton(
+                        //     onPressed: () {
+                        //       setState(() {});
+                        //     },
+                        //     icon: const Icon(Icons.check)),
                       ],
                     ),
                   ),
