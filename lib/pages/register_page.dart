@@ -116,6 +116,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             // "username": user.displayName?.replaceAll(" ", "_"),
                             "username": userName,
                             "phoneNumber": phoneNumber,
+                            "email": email,
                             "PIN": PIN,
                             "currencies": {
                               "EUR": 1000,
