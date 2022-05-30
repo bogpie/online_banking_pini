@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import '../services/user_data.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -22,16 +23,18 @@ class _ProfilePageState extends State<ProfilePage> {
       body: Center(
         child: Column(
           children: [
-            ElevatedButton(onPressed: (){
-              _auth.signOut();
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/');
-            }, child: const Text('Logout')),
+            ElevatedButton(
+                onPressed: () {
+                  _auth.signOut();
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/');
+                },
+                child: const Text('Logout')),
             FutureBuilder(
               future: getUserMap(FirebaseAuth.instance.currentUser!.uid)
                   .then((result) => data = result),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) {
+                if (!snapshot.hasData || snapshot.hasError) {
                   return const Center(child: CircularProgressIndicator());
                 }
                 return Padding(
@@ -41,27 +44,27 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         Text(
                           'First Name:  '
-                              '${data['firstName']} ',
+                          '${data['firstName']} ',
                           textScaleFactor: 2,
                         ),
                         Text(
                           'Last Name:  '
-                              '${data['lastName']} ',
+                          '${data['lastName']} ',
                           textScaleFactor: 2,
                         ),
                         Text(
                           'Phone Number:  '
-                              '${data['phoneNumber']} ',
+                          '${data['phoneNumber']} ',
                           textScaleFactor: 2,
                         ),
                         Text(
                           'Personal Identification Number:  '
-                              '${data['PIN']} ',
+                          '${data['PIN']} ',
                           textScaleFactor: 2,
                         ),
                         Text(
                           'You have '
-                              '${data['currencies']['RON']} RON',
+                          '${data['currencies']['RON']} RON',
                           textScaleFactor: 2,
                         ),
                         Text(
@@ -84,8 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 );
               },
             )
-          ]
-          ,
+          ],
         ),
       ),
     );

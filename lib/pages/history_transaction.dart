@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import '../services/user_data.dart';
 
 class TransactionHistory extends StatefulWidget {
@@ -17,17 +18,42 @@ class _TransactionHistory extends State<TransactionHistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("History of your transactions"),
+        title: const Text('Start page'),
       ),
-    //   body: FutureBuilder(
-    //     builder (context, snapshot) { return ListView.builder(
-    //       itemCount: items.length,
-    //       itemBuilder: (context, index) {
-    //
-    //       return ListTile(
-    //           title: Text(items[index]),
-    //       );
-    // );}
-      );
+      body: FutureBuilder(
+        future: getUserMap(FirebaseAuth.instance.currentUser!.uid)
+            .then((result) => data = result),
+        builder: (context, snapshot) {
+          return ListView.builder(
+            itemCount: data['transfers']?.length ?? 0,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  elevation: 15,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ListTile(
+                            title: Text(data['transfers'][index]['iban']),
+                            subtitle: Text(
+                              data['transfers'][index]['currency'] +
+                                  data['transfers'][index]['amount'].toString(),
+                            ),
+                          ),
+                        ),
+                        ElevatedButton(onPressed: () {}, child: const Text('Cancel'))
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
   }
 }

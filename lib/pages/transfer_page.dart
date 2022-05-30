@@ -23,7 +23,6 @@ class _TransferPageState extends State<TransferPage> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
@@ -121,6 +120,7 @@ class _TransferPageState extends State<TransferPage> {
 
               double newSenderBalance =
                   senderData['currencies'][currency] * 1.0 - transferred;
+
 
               if (receiverIbanCode.length != 4) {
                 showDialog<String>(
@@ -262,7 +262,6 @@ class _TransferPageState extends State<TransferPage> {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context);
               Navigator.pushNamed(context, '/history');
             },
             child: const Text('History'),

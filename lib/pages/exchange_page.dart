@@ -41,7 +41,6 @@ class _ExchangePageState extends State<ExchangePage> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
-        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 
         children: [
           const SizedBox(
