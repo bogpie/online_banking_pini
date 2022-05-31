@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:online_banking_pini/utils/iban.dart';
 
 import '../services/user_data.dart';
 
@@ -31,7 +33,7 @@ class _TransactionHistory extends State<TransactionHistory> {
                 itemCount: data['transfers']?.length ?? 0,
                 itemBuilder: (context, index) {
                   // Print out the items which will be received + 2 buttons
-                  if (data['type'] == "received") {
+                  if (data['transfers'][index]['type'] == "received") {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Card(
@@ -46,12 +48,12 @@ class _TransactionHistory extends State<TransactionHistory> {
                                     subtitle: Column(
                                         children: [
                                           Text(
-                                              data['transfers'][index]['iban']),
+                                            data['transfers'][index]['iban']),
                                           Text(
                                             data['transfers'][index]['currency'] +
                                                 ' ' +
-                                                data['transfers'][index]['amount']
-                                                    .toString(),
+                                            data['transfers'][index]['amount']
+                                                .toString(),
                                           ),
                                         ]
                                     )
@@ -59,9 +61,37 @@ class _TransactionHistory extends State<TransactionHistory> {
                               ),
                               IconButton(
                                   onPressed: () async {
-                                    Map currentUserData =
-                                    await getUserMap(
-                                        FirebaseAuth.instance.currentUser!.uid);
+                                    /* Delete the transactions from database of
+                                    * both users -> sender and receiver */
+
+                                    /* Delete the current user transactions */
+                                    List<dynamic>? currentTransfers = data["transfers"];
+                                    if (currentTransfers != null) {
+                                      currentTransfers.removeAt(index);
+                                    }
+
+                                    /* Get instance of db of the current user*/
+                                    DatabaseReference currentRef = FirebaseDatabase.instance.ref(
+                                      "users/${FirebaseAuth.instance.currentUser?.uid ?? 'null_'
+                                          'uid'}",
+                                    );
+
+                                    /* Update the new transfer list */
+                                    currentRef.update({"transfers": currentTransfers});
+
+                                    /* Get the sender Iban to match with the uid */
+                                    String senderIbanCode =
+                                        data['transfers'][index]['iban'];
+                                    String senderUID = await
+                                        ibanCodeToUid(senderIbanCode);
+
+                                    /* Get the sender data */
+                                    Map senderData = await getUserMap(senderUID);
+                                    String username = senderData["username"];
+
+                                    /* Get the sender instance from database */
+                                    DatabaseReference senderRef =
+                                        FirebaseDatabase.instance.ref("users/$senderUID");
                                   },
                                   icon: const Icon(Icons.check)),
                               IconButton(
