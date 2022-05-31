@@ -145,17 +145,18 @@ class _RegisterPageState extends State<RegisterPage> {
                             },
                             "transfers": [],
                             "currencies": {
-                              "EUR": 1000,
-                              "RON": 2000,
-                              "USD": 3000
-                            }
+                              "EUR": 0,
+                              "RON": 0,
+                              "USD": 0
+                            },
+                            "pending": 1,
                           },
                         );
                         Navigator.of(context).pop();
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text('Registration success'),
+                            title: const Text('Registration completed'),
                             actions: [
                               ElevatedButton(
                                 onPressed: () {
