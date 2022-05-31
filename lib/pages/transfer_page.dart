@@ -251,8 +251,8 @@ class _TransferPageState extends State<TransferPage> {
                   receiversRef.update({"transfers": receiverTransfers});
 
                   /* Update the new currencies inside database */
-                  senderRef.update({"currencies": senderData["currencies"]});
-                  receiversRef.update({"currencies": receiverData["currencies"]});
+                  //senderRef.update({"currencies": senderData["currencies"]});
+                  //receiversRef.update({"currencies": receiverData["currencies"]});
 
                   showDialog<String>(
                     context: context,
