@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:online_banking_pini/utils/iban.dart';
+import 'dart:math';
 
 import '../services/user_data.dart';
 
@@ -125,7 +126,6 @@ class _TransferPageState extends State<TransferPage> {
                   double newSenderBalance =
                       senderData['currencies'][currency] * 1.0 - transferred;
 
-
                   if (receiverIbanCode.length != 4) {
                     showDialog<String>(
                       context: context,
@@ -192,6 +192,10 @@ class _TransferPageState extends State<TransferPage> {
                       '0123 4567 '
                           '8901 2345';
 
+                  /* Generate the transfer_id as a random number */
+                  Random random = new Random();
+                  String transfer_id = random.nextInt(1000000).toString();
+
                   /* Extract transfer list from senders */
                   List<dynamic>? senderTransfers = senderData["transfers"];
 
@@ -200,6 +204,7 @@ class _TransferPageState extends State<TransferPage> {
                       {
                           "type": "sent",
                           "iban": receiverIban,
+                          "transfer_id": transfer_id,
                           "amount": transferred,
                           "currency": currency
                       }
@@ -209,6 +214,7 @@ class _TransferPageState extends State<TransferPage> {
                        {
                          "type": "sent",
                          "iban": receiverIban,
+                         "transfer_id": transfer_id,
                          "amount": transferred,
                          "currency": currency
                        }
@@ -223,6 +229,7 @@ class _TransferPageState extends State<TransferPage> {
                         {
                           "type": "received",
                           "iban": senderIban,
+                          "transfer_id": transfer_id,
                           "amount": transferred,
                           "currency": currency
                         }
@@ -232,6 +239,7 @@ class _TransferPageState extends State<TransferPage> {
                       {
                         "type": "received",
                         "iban": senderIban,
+                        "transfer_id": transfer_id,
                         "amount": transferred,
                         "currency": currency
                       }
