@@ -15,3 +15,13 @@ Future<Map> getUserMap(String uid) async {
   return map;
 }
 
+Future <Map> getAllUsersMap() async {
+  final ref = FirebaseDatabase.instance.ref();
+  final DataSnapshot snapshot =
+      await ref.child('users').get();
+
+  Map map = jsonDecode(jsonEncode(snapshot.value));
+
+  return map;
+}
+
