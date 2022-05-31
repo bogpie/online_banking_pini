@@ -6,6 +6,8 @@ import 'package:online_banking_pini/pages/profile_page.dart';
 import 'package:online_banking_pini/pages/register_page.dart';
 import 'package:online_banking_pini/pages/select_start_page.dart';
 import 'package:online_banking_pini/pages/history_transaction.dart';
+import 'package:online_banking_pini/pages/support_page.dart';
+
 
 
 import 'firebase_options.dart';
@@ -44,6 +46,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const HomePage(),
         '/profile': (context) => const ProfilePage(),
         '/history': (context) => const TransactionHistory(),
+        '/support': (context) => const SupportPage(),
       },
     );
   }

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:online_banking_pini/pages/exchange_page.dart';
+import 'package:online_banking_pini/pages/support_page.dart';
 import 'package:online_banking_pini/pages/transfer_page.dart';
 
 import '../services/user_data.dart';
@@ -111,7 +112,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const TransferPage(),
             const ExchangePage(),
-            const Icon(Icons.support_agent),
+            const SupportPage(),
           ],
         ),
       ),
