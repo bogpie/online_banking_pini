@@ -36,73 +36,83 @@ class _TransactionHistory extends State<TransactionHistory> {
                   if (data['transfers'][index]['type'] == "received") {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Card(
-                        elevation: 15,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: ListTile(
-                                    title: Text(data['username']),
-                                    subtitle: Column(
-                                        children: [
-                                          Text(
-                                            data['transfers'][index]['iban']),
-                                          Text(
-                                            data['transfers'][index]['currency'] +
-                                                ' ' +
-                                            data['transfers'][index]['amount']
-                                                .toString(),
-                                          ),
-                                        ]
-                                    )
-                                ),
+                      child: Column(
+                        children: [
+                          Card(
+                            elevation: 15,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: ListTile(
+                                        title: Text(data['username']),
+                                        subtitle: Column(
+                                            children: [
+                                              Text(
+                                                data['transfers'][index]['iban']),
+                                              Text(
+                                                data['transfers'][index]['currency'] +
+                                                    ' ' +
+                                                data['transfers'][index]['amount']
+                                                    .toString(),
+                                              ),
+                                            ]
+                                        )
+                                    ),
+                                  ),
+                                  IconButton(
+                                      onPressed: () async {
+                                        /* Delete the transactions from database of
+                                        * both users -> sender and receiver */
+
+                                        /* Delete the current user transaction */
+                                        List<dynamic>? currentTransfers = data["transfers"];
+                                        if (currentTransfers != null) {
+                                          currentTransfers.removeAt(index);
+                                        }
+
+                                        /* Get instance of db of the current user*/
+                                        DatabaseReference currentRef = FirebaseDatabase.instance.ref(
+                                          "users/${FirebaseAuth.instance.currentUser?.uid ?? 'null_'
+                                              'uid'}",
+                                        );
+
+                                        /* Update the new transfer list */
+                                        currentRef.update({"transfers": currentTransfers});
+
+                                        /* Get the sender Iban to match with the uid */
+                                        String senderIbanCode =
+                                            data['transfers'][index]['iban'];
+                                        String senderUID = await
+                                            ibanCodeToUid(senderIbanCode);
+
+                                        /* Get the sender data */
+                                        Map senderData = await getUserMap(senderUID);
+                                        String username = senderData["username"];
+
+                                        /* Get the sender instance from database */
+                                        DatabaseReference senderRef =
+                                            FirebaseDatabase.instance.ref("users/$senderUID");
+                                      },
+                                      icon: const Icon(Icons.check)),
+                                  IconButton(
+                                      onPressed: () {
+                                        setState(() {});
+                                      },
+                                      icon: const Icon(Icons.cancel)),
+                                ],
                               ),
-                              IconButton(
-                                  onPressed: () async {
-                                    /* Delete the transactions from database of
-                                    * both users -> sender and receiver */
-
-                                    /* Delete the current user transactions */
-                                    List<dynamic>? currentTransfers = data["transfers"];
-                                    if (currentTransfers != null) {
-                                      currentTransfers.removeAt(index);
-                                    }
-
-                                    /* Get instance of db of the current user*/
-                                    DatabaseReference currentRef = FirebaseDatabase.instance.ref(
-                                      "users/${FirebaseAuth.instance.currentUser?.uid ?? 'null_'
-                                          'uid'}",
-                                    );
-
-                                    /* Update the new transfer list */
-                                    currentRef.update({"transfers": currentTransfers});
-
-                                    /* Get the sender Iban to match with the uid */
-                                    String senderIbanCode =
-                                        data['transfers'][index]['iban'];
-                                    String senderUID = await
-                                        ibanCodeToUid(senderIbanCode);
-
-                                    /* Get the sender data */
-                                    Map senderData = await getUserMap(senderUID);
-                                    String username = senderData["username"];
-
-                                    /* Get the sender instance from database */
-                                    DatabaseReference senderRef =
-                                        FirebaseDatabase.instance.ref("users/$senderUID");
-                                  },
-                                  icon: const Icon(Icons.check)),
-                              IconButton(
-                                  onPressed: () {
-                                    setState(() {});
-                                  },
-                                  icon: const Icon(Icons.cancel)),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
+                          IconButton(
+                            onPressed: () {
+                              setState(() {});
+                            },
+                            icon: const Icon(Icons.refresh),
+                          ),
+                        ],
+                      )
                     );
                   }
                   // Print out the items that are sent without buttons
