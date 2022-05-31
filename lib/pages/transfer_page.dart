@@ -120,13 +120,22 @@ class _TransferPageState extends State<TransferPage> {
               ),
               ElevatedButton(
                 onPressed: () async {
+                  Map userList = await getAllUsersMap();
+                  List uidList = userList.keys.toList();
+                  List splittedList = [];
+
+                  uidList.forEach((item) {
+                      splittedList.add(item.toString().substring(0, 4));
+                  });
+
                   Map senderData =
                       await getUserMap(FirebaseAuth.instance.currentUser!.uid);
 
                   double newSenderBalance =
                       senderData['currencies'][currency] * 1.0 - transferred;
 
-                  if (receiverIbanCode.length != 4) {
+                  if (receiverIbanCode.length != 4 ||
+                        splittedList.contains(receiverIbanCode) == false) {
                     showDialog<String>(
                       context: context,
                       builder: (BuildContext context) => AlertDialog(
