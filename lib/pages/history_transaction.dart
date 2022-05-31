@@ -145,6 +145,20 @@ class _TransactionHistory extends State<TransactionHistory> {
                                           "transfers": senderTransfers,
                                           "currencies": receiverCurrencies
                                         });
+
+                                        showDialog<String>(
+                                          context: context,
+                                          builder: (BuildContext context) => AlertDialog(
+                                            title: const Text('Transaction accepted'),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(context, 'OK'),
+                                                child: const Text('OK'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+
                                         setState(() {});
                                       },
                                       icon: const Icon(Icons.check)),
@@ -216,6 +230,19 @@ class _TransactionHistory extends State<TransactionHistory> {
                                         senderRef.update({
                                           "transfers": senderTransfers
                                         });
+
+                                        showDialog<String>(
+                                          context: context,
+                                          builder: (BuildContext context) => AlertDialog(
+                                            title: const Text('Transaction declined'),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(context, 'OK'),
+                                                child: const Text('OK'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
 
                                         setState(() {});
                                       },
