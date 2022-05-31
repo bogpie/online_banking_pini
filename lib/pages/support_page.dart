@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:online_banking_pini/utils/iban.dart';
+import 'dart:convert';
 
 import '../services/user_data.dart';
 
@@ -15,6 +16,7 @@ class SupportPage extends StatefulWidget {
 class _TransactionHistory extends State<SupportPage> {
   Map data = {};
   final _auth = FirebaseAuth.instance;
+  final ref = FirebaseDatabase.instance.ref();
 
   @override
   Widget build(BuildContext context) {
@@ -24,16 +26,19 @@ class _TransactionHistory extends State<SupportPage> {
       ),
       body: Center(
         child: SizedBox(
-          width: 500,
+          width: 800,
           child: FutureBuilder(
-            future: getUserMap(FirebaseAuth.instance.currentUser!.uid)
+            future: getAllUsersMap()
                 .then((result) => data = result),
             builder: (context, snapshot) {
               return ListView.builder(
-                itemCount: data['transfers']?.length ?? 0,
+                itemCount: data.values.toList().length,
                 itemBuilder: (context, index) {
+                  Map userData = data.values.toList()[index];
                   // Print out the items which will be received + 2 buttons
-                  if (data['transfers'][index]['type'] == "received") {
+                  if (userData['pending'] == 1) {
+                        String userIBAN =
+                          userData['IBAN']['RON'];
                     return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
@@ -46,110 +51,59 @@ class _TransactionHistory extends State<SupportPage> {
                                   children: [
                                     Expanded(
                                       child: ListTile(
-                                          title: Text(data['username']),
+                                          title: Text(userData['username']),
                                           subtitle: Column(
                                               children: [
-                                                Text(
-                                                    data['transfers'][index]['iban']),
-                                                Text(
-                                                  data['transfers'][index]['currency'] +
-                                                      ' ' +
-                                                      data['transfers'][index]['amount']
-                                                          .toString(),
+                                                Text('First name: ' +
+                                                    userData['firstName'],
                                                 ),
+                                                Text('Last name: ' +
+                                                    userData['lastName'],
+                                                ),
+                                                Text('PIN: ' +
+                                                    userData['PIN'],
+                                                ),
+                                                Text('Email: ' +
+                                                    userData['email'],
+                                                ),
+                                                Text('Phone number: ' +
+                                                  userData['phoneNumber']),
                                               ]
                                           )
                                       ),
                                     ),
+                                    /* Accept the user registration */
                                     IconButton(
                                         onPressed: () async {
-                                          /* Delete the current user transaction */
-                                          String senderIbanCode =
-                                          data['transfers'][index]['iban'];
+                                          String userUID = await
+                                                ibanCodeToUid(
+                                                    userIBAN.substring(5, 9));
 
-                                          String currency =
-                                          data['transfers'][index]['currency'];
+                                          Map userData = await getUserMap(userUID);
+                                          Map currenciesMap = userData["currencies"];
 
-                                          double amount =
-                                          data['transfers'][index]['amount'];
+                                          /* Put initial money inside a new
+                                          * registered acccount */
+                                          currenciesMap['EUR'] = 2000;
+                                          currenciesMap['RON'] = 2000;
+                                          currenciesMap['USD'] = 2000;
 
-                                          String transfer_id = "";
-                                          List<dynamic>? currentTransfers = data["transfers"];
-                                          Map dataSend = await getUserMap(FirebaseAuth.instance.currentUser!.uid);
-                                          Map currenciesSend = dataSend["currencies"];
+                                          DatabaseReference userRef =
+                                              FirebaseDatabase.instance.ref(
+                                                  "users/$userUID");
 
-                                          if (currentTransfers != null) {
-                                            /* Grab the common transfer_id */
-                                            transfer_id = data["transfers"][index]["transfer_id"];
-
-                                            /* Modify the currency and type of trans */
-                                            currentTransfers[index]["type"] = "sent";
-                                            currenciesSend[currency] += amount;
-
-                                            /* Get instance of db of the current user*/
-                                            DatabaseReference currentRef = FirebaseDatabase
-                                                .instance.ref(
-                                              "users/${FirebaseAuth.instance
-                                                  .currentUser?.uid ?? 'null_'
-                                                  'uid'}",
-                                            );
-
-                                            /* Update the new transfer list */
-                                            currentRef.update({
-                                              "transfers": currentTransfers,
-                                              "currencies": currenciesSend
-                                            });
-                                          }
-
-                                          // Get the Sender Data and remove his transfer
-                                          /* Get the sender Iban to match with the uid */
-                                          String senderUID = await
-                                          ibanCodeToUid(
-                                              senderIbanCode.substring(5, 9));
-
-                                          // // /* Get the sender data */
-                                          Map senderData = await getUserMap(senderUID);
-                                          List<dynamic>? senderTransfers = senderData['transfers'];
-                                          Map receiverCurrencies = senderData["currencies"];
-
-                                          if (senderTransfers != null) {
-                                            /* Grab the specific transfer with common transfer_id */
-                                            if (transfer_id != "") {
-                                              dynamic elementToFind;
-                                              senderTransfers.forEach((element) {
-                                                if (element['transfer_id'] == transfer_id) {
-                                                  elementToFind = element;
-                                                }
-                                              });
-
-                                              int foundIndex =
-                                              senderTransfers.indexOf(elementToFind, 0);
-
-                                              // Here modify every field you want of the sender
-                                              // (not the current user)
-                                              elementToFind['type'] = "sent";
-                                              receiverCurrencies[currency] -= amount;
-
-                                              senderTransfers[foundIndex] =
-                                                  elementToFind;
-                                            }
-                                          }
-
-                                          /* Get the sender instance from database */
-                                          DatabaseReference senderRef =
-                                          FirebaseDatabase.instance.ref(
-                                              "users/$senderUID");
-
-                                          /* Update the new transfer and currencies list */
-                                          senderRef.update({
-                                            "transfers": senderTransfers,
-                                            "currencies": receiverCurrencies
+                                          // Update the initial balance
+                                          // Make pending flag 0;
+                                          userRef.update({
+                                            "currencies": currenciesMap,
+                                            "pending": 0,
                                           });
 
+                                          // Print the Popup
                                           showDialog<String>(
                                             context: context,
                                             builder: (BuildContext context) => AlertDialog(
-                                              title: const Text('Transaction accepted'),
+                                              title: const Text('User succesfully registered'),
                                               actions: <Widget>[
                                                 TextButton(
                                                   onPressed: () => Navigator.pop(context, 'OK'),
@@ -162,79 +116,30 @@ class _TransactionHistory extends State<SupportPage> {
                                           setState(() {});
                                         },
                                         icon: const Icon(Icons.check)),
+                                    /* Decline the user registration */
                                     IconButton(
                                         onPressed: () async {
-                                          /* Delete the transactions from database of
-                                        * both users -> sender and receiver */
-
-                                          /* Delete the current user transaction */
-                                          String transfer_id = "";
-                                          List<dynamic>? currentTransfers = data["transfers"];
-                                          if (currentTransfers != null) {
-                                            /* Grab the common transfer_id */
-                                            transfer_id = data["transfers"][index]["transfer_id"];
-
-                                            currentTransfers[index]["type"] = "sent";
-
-                                            /* Get instance of db of the current user*/
-                                            DatabaseReference currentRef = FirebaseDatabase
-                                                .instance.ref(
-                                              "users/${FirebaseAuth.instance
-                                                  .currentUser?.uid ?? 'null_'
-                                                  'uid'}",
-                                            );
-
-                                            /* Update the new transfer list */
-                                            currentRef.update({
-                                              "transfers": currentTransfers
-                                            });
-                                          }
-
-                                          // Get the Sender Data and remove his transfer
-                                          /* Get the sender Iban to match with the uid */
-                                          String senderIbanCode =
-                                          data['transfers'][index]['iban'];
-
-                                          String senderUID = await
+                                          String userUID = await
                                           ibanCodeToUid(
-                                              senderIbanCode.substring(5, 9));
+                                              userIBAN.substring(5, 9));
 
-                                          // // /* Get the sender data */
-                                          Map senderData = await getUserMap(senderUID);
-                                          List<dynamic>? senderTransfers = senderData["transfers"];
-                                          if (senderTransfers != null) {
-                                            /* Grab the specific transfer with common transfer_id */
-                                            if (transfer_id != "") {
-                                              dynamic elementToFind;
-                                              senderTransfers.forEach((element) {
-                                                if (element["transfer_id"] == transfer_id) {
-                                                  elementToFind = element;
-                                                }
-                                              });
+                                          Map userData = await getUserMap(userUID);
 
-                                              int foundIndex =
-                                              senderTransfers.indexOf(elementToFind, 0);
-
-                                              elementToFind['type'] = "sent";
-                                              senderTransfers[foundIndex] =
-                                                  elementToFind;
-                                            }
-                                          }
-
-                                          /* Get the sender instance from database */
-                                          DatabaseReference senderRef =
+                                          DatabaseReference userRef =
                                           FirebaseDatabase.instance.ref(
-                                              "users/$senderUID");
+                                              "users/$userUID");
 
-                                          /* Update the new transfer list */
-                                          senderRef.update({
-                                            "transfers": senderTransfers
+                                          // TODO Delete user?
+                                          // Make pending flag 0;
+                                          userRef.update({
+                                            "pending": 0,
                                           });
 
+                                          // Print the popup
                                           showDialog<String>(
                                             context: context,
                                             builder: (BuildContext context) => AlertDialog(
-                                              title: const Text('Transaction declined'),
+                                              title: const Text('User declined'),
                                               actions: <Widget>[
                                                 TextButton(
                                                   onPressed: () => Navigator.pop(context, 'OK'),
@@ -243,10 +148,28 @@ class _TransactionHistory extends State<SupportPage> {
                                               ],
                                             ),
                                           );
-
                                           setState(() {});
                                         },
                                         icon: const Icon(Icons.cancel)),
+                                    IconButton(
+                                        onPressed: () async {
+
+                                          // Print the popup
+                                          showDialog<String>(
+                                            context: context,
+                                            builder: (BuildContext context) => AlertDialog(
+                                              title: const Text('Contact user'),
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context, 'OK'),
+                                                  child: const Text('OK'),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                          setState(() {});
+                                        },
+                                        icon: const Icon(Icons.contact_mail_rounded)),
                                   ],
                                 ),
                               ),
@@ -267,16 +190,13 @@ class _TransactionHistory extends State<SupportPage> {
                             children: [
                               Expanded(
                                 child: ListTile(
-                                    title: Text(data['username']),
+                                    title: Text(userData['email']),
                                     subtitle: Column(
                                         children: [
                                           Text(
-                                              data['transfers'][index]['iban']),
+                                              userData['email']),
                                           Text(
-                                            data['transfers'][index]['currency'] +
-                                                ' ' +
-                                                data['transfers'][index]['amount']
-                                                    .toString(),
+                                            userData['email'],
                                           ),
                                         ]
                                     )
@@ -284,31 +204,29 @@ class _TransactionHistory extends State<SupportPage> {
                               ),
                               IconButton(
                                   onPressed: () async {
-                                    /* Delete the transactions from database of
-                                        * both users -> sender and receiver */
 
-                                    /* Delete the current user transaction */
-                                    List<dynamic>? currentTransfers = data["transfers"];
-                                    if (currentTransfers != null) {
-                                      currentTransfers.removeAt(index);
-                                      /* Get instance of db of the current user*/
-                                      DatabaseReference currentRef = FirebaseDatabase
-                                          .instance.ref(
-                                        "users/${FirebaseAuth.instance
-                                            .currentUser?.uid ?? 'null_'
-                                            'uid'}",
-                                      );
-
-                                      /* Update the new transfer list */
-                                      currentRef.update({
-                                        "transfers": currentTransfers
-                                      });
-                                    }
-
+                                    // Print the popup
                                     showDialog<String>(
                                       context: context,
                                       builder: (BuildContext context) => AlertDialog(
-                                        title: const Text('Transaction deleted'),
+                                        title: const Text('Contact user'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, 'OK'),
+                                            child: const Text('OK'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    setState(() {});
+                                  },
+                                  icon: const Icon(Icons.contact_mail_rounded)),
+                              IconButton(
+                                  onPressed: () async {
+                                    showDialog<String>(
+                                      context: context,
+                                      builder: (BuildContext context) => AlertDialog(
+                                        title: const Text('Account suspended'),
                                         actions: <Widget>[
                                           TextButton(
                                             onPressed: () => Navigator.pop(context, 'OK'),
@@ -320,7 +238,7 @@ class _TransactionHistory extends State<SupportPage> {
 
                                     setState(() {});
                                   },
-                                  icon: const Icon(Icons.delete)),
+                                  icon: const Icon(Icons.not_interested)),
                             ],
                           ),
                         ),
