@@ -109,6 +109,26 @@ class _RegisterPageState extends State<RegisterPage> {
                         DatabaseReference ref = FirebaseDatabase.instance
                             .ref("users/${credential.user!.uid}");
 
+                        /* Define IBANS when user register */
+                        String ibanCode =
+                            FirebaseAuth.instance.currentUser?.uid.substring(0, 4) ?? '';
+
+                        String ibanRO = "RO" +
+                            "00 " +
+                            ibanCode +
+                            '0123 4567 '
+                                '8901 2345';
+                        String ibanEU = "EU" +
+                            "00 " +
+                            ibanCode +
+                            '0123 4567 '
+                                '8901 2345';
+                        String ibanUS = "US" +
+                            "00 " +
+                            ibanCode +
+                            '0123 4567 '
+                                '8901 2345';
+
                         await ref.set(
                           {
                             "firstName": firstName,
@@ -118,6 +138,11 @@ class _RegisterPageState extends State<RegisterPage> {
                             "phoneNumber": phoneNumber,
                             "email": email,
                             "PIN": PIN,
+                            "IBAN": {
+                              "RON": ibanRO,
+                              "EUR": ibanEU,
+                              "USD": ibanUS,
+                            },
                             "transfers": [],
                             "currencies": {
                               "EUR": 1000,
