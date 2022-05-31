@@ -282,6 +282,45 @@ class _TransactionHistory extends State<TransactionHistory> {
                                     )
                                 ),
                               ),
+                              IconButton(
+                                  onPressed: () async {
+                                    /* Delete the transactions from database of
+                                        * both users -> sender and receiver */
+
+                                    /* Delete the current user transaction */
+                                    List<dynamic>? currentTransfers = data["transfers"];
+                                    if (currentTransfers != null) {
+                                      currentTransfers.removeAt(index);
+                                      /* Get instance of db of the current user*/
+                                      DatabaseReference currentRef = FirebaseDatabase
+                                          .instance.ref(
+                                        "users/${FirebaseAuth.instance
+                                            .currentUser?.uid ?? 'null_'
+                                            'uid'}",
+                                      );
+
+                                      /* Update the new transfer list */
+                                      currentRef.update({
+                                        "transfers": currentTransfers
+                                      });
+                                    }
+
+                                    showDialog<String>(
+                                      context: context,
+                                      builder: (BuildContext context) => AlertDialog(
+                                        title: const Text('Transaction deleted'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, 'OK'),
+                                            child: const Text('OK'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+
+                                    setState(() {});
+                                  },
+                                  icon: const Icon(Icons.delete)),
                             ],
                           ),
                         ),
