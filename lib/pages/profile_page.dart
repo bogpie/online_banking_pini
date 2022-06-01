@@ -104,8 +104,10 @@ class _ProfilePageState extends State<ProfilePage> {
               ElevatedButton(
                   onPressed: () {
                     _auth.signOut();
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, '/');
+                    // Navigator.(context);
+                    // Navigator.pushNamed(context, '/');
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, '/', (Route<dynamic> route) => false);
                   },
                   child: const Text('Logout')),
             ],

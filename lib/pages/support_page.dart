@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:online_banking_pini/utils/iban.dart';
-import 'dart:convert';
 
 import '../services/user_data.dart';
 
@@ -14,168 +13,189 @@ class SupportPage extends StatefulWidget {
 }
 
 class _TransactionHistory extends State<SupportPage> {
-  Map data = {};
+  late final Future<Map> dataFuture;
+  Map? data = {};
+
   final _auth = FirebaseAuth.instance;
   final ref = FirebaseDatabase.instance.ref();
 
   @override
+  void initState() {
+    dataFuture = getAllUsersMap();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Support page'),
-      ),
-      body: Center(
-        child: SizedBox(
-          width: 800,
-          child: FutureBuilder(
-            future: getAllUsersMap()
-                .then((result) => data = result),
-            builder: (context, snapshot) {
+    return Center(
+      child: SizedBox(
+        width: 800,
+        child: FutureBuilder(
+          future: dataFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasError ||
+                snapshot.hasData == false ||
+                _auth.currentUser == null) {
+              return const CircularProgressIndicator();
+            }
+
+            data = snapshot.data as Map;
+            bool admin = data![_auth.currentUser!.uid]['admin'] ?? false;
+            if (admin == true) {
               return ListView.builder(
-                itemCount: data.values.toList().length,
+                itemCount: data!.values.toList().length,
                 itemBuilder: (context, index) {
-                  Map userData = data.values.toList()[index];
+                  Map userData = data!.values.toList()[index];
                   // Print out the items which will be received + 2 buttons
                   if (userData['pending'] == 1) {
-                        String userIBAN =
-                          userData['IBAN']['RON'];
+                    String userIBAN = userData['IBAN']['RON'];
                     return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Card(
-                              elevation: 15,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: ListTile(
-                                          title: Text(userData['username']),
-                                          subtitle: Column(
-                                              children: [
-                                                Text('First name: ' +
-                                                    userData['firstName'],
-                                                ),
-                                                Text('Last name: ' +
-                                                    userData['lastName'],
-                                                ),
-                                                Text('PIN: ' +
-                                                    userData['PIN'],
-                                                ),
-                                                Text('Email: ' +
-                                                    userData['email'],
-                                                ),
-                                                Text('Phone number: ' +
-                                                  userData['phoneNumber']),
-                                              ]
-                                          )
-                                      ),
-                                    ),
-                                    /* Accept the user registration */
-                                    IconButton(
-                                        onPressed: () async {
-                                          String userUID = await
-                                                ibanCodeToUid(
-                                                    userIBAN.substring(5, 9));
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Card(
+                            elevation: 15,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: ListTile(
+                                        title: Text(userData['username']),
+                                        subtitle: Column(children: [
+                                          Text(
+                                            'First name: ' +
+                                                userData['firstName'],
+                                          ),
+                                          Text(
+                                            'Last name: ' +
+                                                userData['lastName'],
+                                          ),
+                                          Text(
+                                            'PIN: ' + userData['PIN'],
+                                          ),
+                                          Text(
+                                            'Email: ' + userData['email'],
+                                          ),
+                                          Text('Phone number: ' +
+                                              userData['phoneNumber']),
+                                        ])),
+                                  ),
+                                  /* Accept the user registration */
+                                  IconButton(
+                                      onPressed: () async {
+                                        String userUID = await ibanCodeToUid(
+                                            userIBAN.substring(5, 9));
 
-                                          Map userData = await getUserMap(userUID);
-                                          Map currenciesMap = userData["currencies"];
+                                        Map userData =
+                                            await getUserMap(userUID);
+                                        Map currenciesMap =
+                                            userData["currencies"];
 
-                                          /* Put initial money inside a new
+                                        /* Put initial money inside a new
                                           * registered acccount */
-                                          currenciesMap['EUR'] = 2000;
-                                          currenciesMap['RON'] = 2000;
-                                          currenciesMap['USD'] = 2000;
+                                        currenciesMap['EUR'] = 2000;
+                                        currenciesMap['RON'] = 2000;
+                                        currenciesMap['USD'] = 2000;
 
-                                          DatabaseReference userRef =
-                                              FirebaseDatabase.instance.ref(
-                                                  "users/$userUID");
+                                        DatabaseReference userRef =
+                                            FirebaseDatabase.instance
+                                                .ref("users/$userUID");
 
-                                          // Update the initial balance
-                                          // Make pending flag 0;
-                                          userRef.update({
-                                            "currencies": currenciesMap,
+                                        // Update the initial balance
+                                        // Make pending flag 0;
+                                        userRef.update({
+                                          "currencies": currenciesMap,
+                                          "pending": 0,
+                                        });
+
+                                        // Print the Popup
+                                        showDialog<String>(
+                                          context: context,
+                                          builder: (BuildContext context) =>
+                                              AlertDialog(
+                                            title: const Text(
+                                                'User succesfully registered'),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(
+                                                    context, 'OK'),
+                                                child: const Text('OK'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+
+                                        setState(() {});
+                                      },
+                                      icon: const Icon(Icons.check)),
+                                  /* Decline the user registration */
+                                  IconButton(
+                                      onPressed: () async {
+                                        String userUID = await ibanCodeToUid(
+                                            userIBAN.substring(5, 9));
+
+                                        Map userData =
+                                            await getUserMap(userUID);
+
+                                        DatabaseReference userRef =
+                                            FirebaseDatabase.instance
+                                                .ref("users/$userUID");
+
+                                        // TODO Delete user?
+                                        // Make pending flag 0;
+                                        userRef.update(
+                                          {
                                             "pending": 0,
-                                          });
+                                          },
+                                        );
 
-                                          // Print the Popup
-                                          showDialog<String>(
-                                            context: context,
-                                            builder: (BuildContext context) => AlertDialog(
-                                              title: const Text('User succesfully registered'),
-                                              actions: <Widget>[
-                                                TextButton(
-                                                  onPressed: () => Navigator.pop(context, 'OK'),
-                                                  child: const Text('OK'),
-                                                ),
-                                              ],
+                                        // Print the popup
+                                        showDialog<String>(
+                                          context: context,
+                                          builder: (BuildContext context) =>
+                                              AlertDialog(
+                                            title: const Text('User declined'),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(
+                                                    context, 'OK'),
+                                                child: const Text('OK'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                        setState(() {});
+                                      },
+                                      icon: const Icon(Icons.cancel)),
+                                  IconButton(
+                                    onPressed: () async {
+                                      // Print the popup
+                                      showDialog<String>(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            AlertDialog(
+                                          title: const Text('Contact user'),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, 'OK'),
+                                              child: const Text('OK'),
                                             ),
-                                          );
-
-                                          setState(() {});
-                                        },
-                                        icon: const Icon(Icons.check)),
-                                    /* Decline the user registration */
-                                    IconButton(
-                                        onPressed: () async {
-                                          String userUID = await
-                                          ibanCodeToUid(
-                                              userIBAN.substring(5, 9));
-
-                                          Map userData = await getUserMap(userUID);
-
-                                          DatabaseReference userRef =
-                                          FirebaseDatabase.instance.ref(
-                                              "users/$userUID");
-
-                                          // TODO Delete user?
-                                          // Make pending flag 0;
-                                          userRef.update({
-                                            "pending": 0,
-                                          });
-
-                                          // Print the popup
-                                          showDialog<String>(
-                                            context: context,
-                                            builder: (BuildContext context) => AlertDialog(
-                                              title: const Text('User declined'),
-                                              actions: <Widget>[
-                                                TextButton(
-                                                  onPressed: () => Navigator.pop(context, 'OK'),
-                                                  child: const Text('OK'),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                          setState(() {});
-                                        },
-                                        icon: const Icon(Icons.cancel)),
-                                    IconButton(
-                                        onPressed: () async {
-
-                                          // Print the popup
-                                          showDialog<String>(
-                                            context: context,
-                                            builder: (BuildContext context) => AlertDialog(
-                                              title: const Text('Contact user'),
-                                              actions: <Widget>[
-                                                TextButton(
-                                                  onPressed: () => Navigator.pop(context, 'OK'),
-                                                  child: const Text('OK'),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                          setState(() {});
-                                        },
-                                        icon: const Icon(Icons.contact_mail_rounded)),
-                                  ],
-                                ),
+                                          ],
+                                        ),
+                                      );
+                                      setState(() {});
+                                    },
+                                    icon:
+                                        const Icon(Icons.contact_mail_rounded),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        )
+                          ),
+                        ],
+                      ),
                     );
                   }
                   // Print out the items that are sent without buttons
@@ -191,28 +211,25 @@ class _TransactionHistory extends State<SupportPage> {
                               Expanded(
                                 child: ListTile(
                                     title: Text(userData['email']),
-                                    subtitle: Column(
-                                        children: [
-                                          Text(
-                                              userData['email']),
-                                          Text(
-                                            userData['email'],
-                                          ),
-                                        ]
-                                    )
-                                ),
+                                    subtitle: Column(children: [
+                                      Text(userData['email']),
+                                      Text(
+                                        userData['email'],
+                                      ),
+                                    ])),
                               ),
                               IconButton(
                                   onPressed: () async {
-
                                     // Print the popup
                                     showDialog<String>(
                                       context: context,
-                                      builder: (BuildContext context) => AlertDialog(
+                                      builder: (BuildContext context) =>
+                                          AlertDialog(
                                         title: const Text('Contact user'),
                                         actions: <Widget>[
                                           TextButton(
-                                            onPressed: () => Navigator.pop(context, 'OK'),
+                                            onPressed: () =>
+                                                Navigator.pop(context, 'OK'),
                                             child: const Text('OK'),
                                           ),
                                         ],
@@ -225,11 +242,13 @@ class _TransactionHistory extends State<SupportPage> {
                                   onPressed: () async {
                                     showDialog<String>(
                                       context: context,
-                                      builder: (BuildContext context) => AlertDialog(
+                                      builder: (BuildContext context) =>
+                                          AlertDialog(
                                         title: const Text('Account suspended'),
                                         actions: <Widget>[
                                           TextButton(
-                                            onPressed: () => Navigator.pop(context, 'OK'),
+                                            onPressed: () =>
+                                                Navigator.pop(context, 'OK'),
                                             child: const Text('OK'),
                                           ),
                                         ],
@@ -247,8 +266,9 @@ class _TransactionHistory extends State<SupportPage> {
                   }
                 },
               );
-            },
-          ),
+            }
+            return const Text('placeholder');
+          },
         ),
       ),
     );

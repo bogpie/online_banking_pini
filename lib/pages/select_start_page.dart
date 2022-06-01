@@ -22,11 +22,13 @@ class _SelectStartPageState extends State<SelectStartPage> {
   }
 
   updateUserState(event) {
-    setState(
-      () {
-        user = event;
-      },
-    );
+    if (mounted) {
+      setState(
+        () {
+          user = event;
+        },
+      );
+    }
   }
 
   @override

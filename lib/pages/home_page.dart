@@ -25,12 +25,13 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     String displayName = '';
-    setState(
-      () {
-        displayName = FirebaseAuth.instance.currentUser?.displayName ?? '';
-      },
-    );
-
+    if (mounted) {
+      setState(
+        () {
+          displayName = FirebaseAuth.instance.currentUser?.displayName ?? '';
+        },
+      );
+    }
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -100,7 +101,9 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 32),
                         IconButton(
                           onPressed: () {
-                            setState(() {});
+                            if (mounted) {
+                              setState(() {});
+                            }
                           },
                           icon: const Icon(Icons.refresh),
                         )
