@@ -13,7 +13,15 @@ class TransactionHistory extends StatefulWidget {
 }
 
 class _TransactionHistory extends State<TransactionHistory> {
+  late final Future<Map> dataFuture;
   Map data = {};
+
+  @override
+  void initState() {
+    String? uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    dataFuture = getUserMap(uid);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +33,12 @@ class _TransactionHistory extends State<TransactionHistory> {
         child: SizedBox(
           width: 500,
           child: FutureBuilder(
-            future: getUserMap(FirebaseAuth.instance.currentUser!.uid)
-                .then((result) => data = result),
+            future: dataFuture,
             builder: (context, snapshot) {
+              if (snapshot.hasError || snapshot.hasData == false) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              data = snapshot.data as Map;
               return Column(
                 children: [
                   Expanded(
@@ -170,11 +181,14 @@ class _TransactionHistory extends State<TransactionHistory> {
                                                             "users/$senderUID");
 
                                                 /* Update the new transfer and currencies list */
-                                                senderRef.update({
-                                                  "transfers": senderTransfers,
-                                                  "currencies":
-                                                      receiverCurrencies
-                                                });
+                                                senderRef.update(
+                                                  {
+                                                    "transfers":
+                                                        senderTransfers,
+                                                    "currencies":
+                                                        receiverCurrencies
+                                                  },
+                                                );
 
                                                 showDialog<String>(
                                                   context: context,
@@ -280,9 +294,11 @@ class _TransactionHistory extends State<TransactionHistory> {
                                                             "users/$senderUID");
 
                                                 /* Update the new transfer list */
-                                                senderRef.update({
-                                                  "transfers": senderTransfers
-                                                });
+                                                senderRef.update(
+                                                  {
+                                                    "transfers": senderTransfers
+                                                  },
+                                                );
 
                                                 showDialog<String>(
                                                   context: context,
@@ -324,11 +340,14 @@ class _TransactionHistory extends State<TransactionHistory> {
                                   children: [
                                     Expanded(
                                       child: ListTile(
-                                        title: Text(data['username']),
+                                        title: Text(data['type'] == 'sent'
+                                            ? 'To ${data['username']}'
+                                            : 'From '
+                                                '${data['username']}'),
                                         subtitle: Column(
                                           children: [
-                                            Text(data['transfers'][index]
-                                                ['iban']),
+                                            Text(
+                                                'via ${data['transfers'][index]['iban']}'),
                                             Text(
                                               data['transfers'][index]
                                                       ['currency'] +
