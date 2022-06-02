@@ -1,11 +1,14 @@
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:online_banking_pini/pages/pdf_view_page.dart';
 import 'package:online_banking_pini/utils/iban.dart';
-import 'package:screenshot/screenshot.dart';
-import 'package:pdf/pdf.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart ' as pw;
+import 'package:screenshot/screenshot.dart';
 
 import '../services/user_data.dart';
 
@@ -417,51 +420,63 @@ class _TransactionHistory extends State<TransactionHistory> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
-                          pw.Document pdf = pw.Document();
+                          // export screen to a pdf file
+                          final pdf = pw.Document();
                           pdf.addPage(
-                            pw.Page(
-                              pageFormat: PdfPageFormat.a4,
+                            pw.MultiPage(
+                              margin: const pw.EdgeInsets.all(32),
                               build: (pw.Context context) {
-                                return pw.Center(
-                                  child: pw.Column(
-                                    children: <pw.Widget>[
-                                      pw.Text(
-                                        'Transactions',
-                                        style: pw.TextStyle(
-                                          fontSize: 40,
-                                          fontWeight: pw.FontWeight.bold,
-                                        ),
-                                      ),
-                                      pw.SizedBox(
-                                        height: 20,
-                                      ),
-                                      pw.Table.fromTextArray(
-                                        context: context,
-                                        data: [
-                                          [
-                                            'Type',
-                                            'Amount',
-                                            'Currency',
-                                            'IBAN',
-                                            'Date',
-                                          ],
-                                          ...data['transfers']
-                                              .map(
-                                                (transfer) => [
-                                                  transfer['type'],
-                                                  transfer['amount'],
-                                                  transfer['currency'],
-                                                  transfer['iban'],
-                                                  transfer['date'],
-                                                ],
-                                              )
-                                              .toList(),
-                                        ],
-                                      ),
+                                return <pw.Widget>[
+                                  pw.Header(
+                                    level: 0,
+                                    child: pw.Text(
+                                      'Transactions',
+                                      textScaleFactor: 2,
+                                    ),
+                                  ),
+                                  pw.Table.fromTextArray(
+                                    context: context,
+                                    data: [
+                                      ['Amount', 'IBAN', 'Type'],
+                                      ...data['transfers']
+                                          .map(
+                                            (transfer) => [
+                                              transfer['amount'],
+                                              transfer['iban'],
+                                              transfer['type']
+                                            ],
+                                          )
+                                          .toList()
                                     ],
                                   ),
-                                );
+                                ];
                               },
+                            ),
+                          );
+                          final file = await _localFile;
+
+                          Uint8List save = await pdf.save();
+
+                          await file.writeAsBytes(save);
+                          showDialog<String>(
+                            context: context,
+                            builder: (BuildContext context) => AlertDialog(
+                              title: const Text('Transactions exported'),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, 'OK'),
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PdfViewPage(
+                                saved: save,
+                              ),
                             ),
                           );
                         },
@@ -483,4 +498,15 @@ extension StringExtension on String {
   String capitalize() {
     return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
+}
+
+Future<String> get _localPath async {
+  final directory = await getApplicationDocumentsDirectory();
+  return directory.path;
+}
+
+Future<File> get _localFile async {
+  final path = await _localPath;
+  print(path);
+  return File('$path/file.pdf');
 }
