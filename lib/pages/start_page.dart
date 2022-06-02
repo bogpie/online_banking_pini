@@ -22,6 +22,12 @@ class _LoginPageState extends State<StartPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            const FlutterLogo(
+              size: 200,
+            ),
+            const SizedBox(
+              height: 32,
+            ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/register');

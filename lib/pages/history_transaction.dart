@@ -1,8 +1,11 @@
+
+import "package:universal_html/html.dart" as html;
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:online_banking_pini/pages/pdf_view_page.dart';
 import 'package:online_banking_pini/utils/iban.dart';
@@ -437,11 +440,12 @@ class _TransactionHistory extends State<TransactionHistory> {
                                   pw.Table.fromTextArray(
                                     context: context,
                                     data: [
-                                      ['Amount', 'IBAN', 'Type'],
+                                      ['Amount', 'Currency', 'IBAN', 'Type'],
                                       ...data['transfers']
                                           .map(
                                             (transfer) => [
                                               transfer['amount'],
+                                              transfer['currency'],
                                               transfer['iban'],
                                               transfer['type']
                                             ],
@@ -453,11 +457,23 @@ class _TransactionHistory extends State<TransactionHistory> {
                               },
                             ),
                           );
-                          final file = await _localFile;
 
                           Uint8List save = await pdf.save();
 
-                          await file.writeAsBytes(save);
+                          if (kIsWeb) {
+                            //Create blob and link from bytes
+                            final blob = html.Blob([save], 'application/pdf');
+                            final url = html.Url.createObjectUrlFromBlob(blob);
+                            final anchor = html.document.createElement('a') as html.AnchorElement
+                              ..href = url
+                              ..style.display = 'none'
+                              ..download = 'pdf.pdf';
+                            html.document.body?.children.add(anchor);
+                          } else {
+                            final file = await _localFile;
+                            await file.writeAsBytes(save);
+                          }
+
                           showDialog<String>(
                             context: context,
                             builder: (BuildContext context) => AlertDialog(
