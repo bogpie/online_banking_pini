@@ -88,6 +88,21 @@ class _ProfilePageState extends State<ProfilePage> {
                             'You have ${data['currencies']['USD']} USD',
                             textScaleFactor: 1.5,
                           ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Text('IBAN RO: ' +
+                              data['IBAN']['RON'].toString()),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Text('IBAN EUR: ' +
+                              data['IBAN']['EUR']),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Text('IBAN USD: ' +
+                              data['IBAN']['USD']),
                           const SizedBox(height: 32),
                           IconButton(
                               onPressed: () {

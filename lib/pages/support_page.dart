@@ -61,8 +61,9 @@ class _TransactionHistory extends State<SupportPage> {
                                 children: [
                                   Expanded(
                                     child: ListTile(
-                                        title: Text(userData['username']),
-                                        subtitle: Column(children: [
+                                      title: Text(userData['username']),
+                                      subtitle: Column(
+                                        children: [
                                           Text(
                                             'First name: ' +
                                                 userData['firstName'],
@@ -79,7 +80,9 @@ class _TransactionHistory extends State<SupportPage> {
                                           ),
                                           Text('Phone number: ' +
                                               userData['phoneNumber']),
-                                        ])),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                   /* Accept the user registration */
                                   IconButton(
@@ -210,13 +213,16 @@ class _TransactionHistory extends State<SupportPage> {
                             children: [
                               Expanded(
                                 child: ListTile(
-                                    title: Text(userData['email']),
-                                    subtitle: Column(children: [
+                                  title: Text(userData['email']),
+                                  subtitle: Column(
+                                    children: [
                                       Text(userData['email']),
                                       Text(
                                         userData['email'],
                                       ),
-                                    ])),
+                                    ],
+                                  ),
+                                ),
                               ),
                               IconButton(
                                   onPressed: () async {
