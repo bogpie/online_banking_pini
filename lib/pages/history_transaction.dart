@@ -60,13 +60,18 @@ class _TransactionHistory extends State<TransactionHistory> {
                                       children: [
                                         Expanded(
                                           child: ListTile(
-                                            title: Text(data['username']),
-                                            subtitle: Column(
-                                              children: [
-                                                Text(data['transfers'][index]
-                                                    ['iban']),
-                                              ],
-                                            ),
+                                            title: Text(
+                                                "${data['transfers'][index][''
+                                                    'type'].toString().split(" ").first.capitalize()} "
+                                                // string can be "received" or
+                                                // "sent" or "received and approved"
+
+                                                    "${data['transfers'][index][''
+                                                    'currency']} "
+                                                "${data['transfers'][index]['amount']}"),
+                                            // title: Text(data['username']),
+                                            subtitle: Text(
+                                                '${data['transfers'][index]['type'] == 'sent' ? 'to' : 'from'} ${data['transfers'][index]['iban']}'),
                                           ),
                                         ),
                                         if (data['transfers'][index]['type'] ==
@@ -475,5 +480,11 @@ class _TransactionHistory extends State<TransactionHistory> {
         ),
       ),
     );
+  }
+}
+
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }

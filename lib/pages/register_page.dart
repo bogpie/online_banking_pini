@@ -139,15 +139,15 @@ class _RegisterPageState extends State<RegisterPage> {
 
                             String ibanRO = "RO" "00 " +
                                 ibanCode +
-                                '0123 4567 '
+                                ' 0123 4567 '
                                     '8901 2345';
                             String ibanEU = "EU" "00 " +
                                 ibanCode +
-                                '0123 4567 '
+                                ' 0123 4567 '
                                     '8901 2345';
                             String ibanUS = "US" "00 " +
                                 ibanCode +
-                                '0123 4567 '
+                                ' 0123 4567 '
                                     '8901 2345';
 
                             await ref.set(
