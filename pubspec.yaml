@@ -37,6 +37,8 @@ dependencies:
   firebase_auth: ^3.3.16
   firebase_core: any
   firebase_database: ^9.0.13
+  printing: ^5.9.1
+  screenshot: ^1.2.3
 
 dev_dependencies:
   flutter_test:

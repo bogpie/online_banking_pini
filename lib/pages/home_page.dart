@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(
                 width: 16,
               ),
-              Text(displayName.toUpperCase()),
+              Expanded(child: Text(displayName.toUpperCase())),
             ],
           ),
           bottom: const TabBar(
